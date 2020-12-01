@@ -34,15 +34,6 @@ CREATE TABLE users_communityModeration (
     PRIMARY KEY (userName, communityId)
 );
 
-CREATE TABLE users_threadVotes (
-    voteType CHAR(1), 
-	userName VARCHAR(255) NOT NULL,
-    threadId INT NOT NULL, 
-    FOREIGN KEY (userName) REFERENCES users(userName),
-    FOREIGN KEY (threadId) REFERENCES thread(threadId),
-    PRIMARY KEY (userName, threadId)
-);
-
 CREATE TABLE post (
 	postId INT NOT NULL,
     postTitle VARCHAR(255) NOT NULL,
@@ -68,8 +59,15 @@ CREATE TABLE thread (
     PRIMARY KEY (threadId)
 );
 
+CREATE TABLE users_threadVotes (
+    voteType CHAR(1), 
+	userName VARCHAR(255) NOT NULL,
+    threadId INT NOT NULL, 
+    FOREIGN KEY (userName) REFERENCES users(userName),
+    FOREIGN KEY (threadId) REFERENCES thread(threadId),
+    PRIMARY KEY (userName, threadId)
+);
+
 ALTER TABLE comments ADD FOREIGN KEY (commentId) REFERENCES thread(threadId);
 
 ALTER TABLE post ADD FOREIGN KEY (postId) REFERENCES thread(threadId);
-
-
