@@ -34,19 +34,21 @@ CREATE TABLE userProfile_communityModeration (
 );
 
 CREATE TABLE post (
-	postId INT NOT NULL,
+	postId INT NOT NULL AUTO_INCREMENT,
     postTitle VARCHAR(255) NOT NULL,
     postText VARCHAR(255),
     postLink VARCHAR(255),
     postImg VARCHAR(255),
     postCommunity INT NOT NULL,
+    threadId INT NOT NULL,
     FOREIGN KEY (postCommunity) REFERENCES community(communityId),
     PRIMARY KEY (postId)
 );
 
 CREATE TABLE comment (
-	commentId INT NOT NULL,
+	commentId INT NOT NULL AUTO_INCREMENT,
     commentText VARCHAR(255),
+    threadId INT NOT NULL,
     PRIMARY KEY (commentId)
 );
 
@@ -67,8 +69,6 @@ CREATE TABLE userProfile_threadVote (
     PRIMARY KEY (userName, threadId)
 );
 
-ALTER TABLE community ADD communityCreator VARCHAR(25) NOT NULL, ADD FOREIGN KEY (communityCreator) REFERENCES users(userName);
-
-ALTER TABLE comment ADD FOREIGN KEY (commentId) REFERENCES thread(threadId);
-
-ALTER TABLE post ADD FOREIGN KEY (postId) REFERENCES thread(threadId);
+ALTER TABLE community ADD communityCreator VARCHAR(25) NOT NULL, ADD FOREIGN KEY (communityCreator) REFERENCES userProfile(userName);
+ALTER TABLE post ADD FOREIGN KEY (threadId) REFERENCES thread(threadId);
+ALTER TABLE comment ADD FOREIGN KEY (threadId) REFERENCES thread(threadId);
