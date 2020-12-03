@@ -35,6 +35,12 @@ CREATE TABLE userProfile_communityModeration (
     PRIMARY KEY (userName, communityId)
 );
 
+CREATE TABLE thread (
+	threadId INT AUTO_INCREMENT,
+    threadFather INT NOT NULL,
+    PRIMARY KEY (threadId)
+);
+
 CREATE TABLE post (
 	postId INT NOT NULL,
     postTitle VARCHAR(255) NOT NULL,
@@ -43,21 +49,15 @@ CREATE TABLE post (
     postImg VARCHAR(255),
     postCommunity INT NOT NULL,
     FOREIGN KEY (postCommunity) REFERENCES community(communityId),
+    FOREIGN KEY (postId) REFERENCES thread(threadId),
     PRIMARY KEY (postId)
 );
 
 CREATE TABLE comment (
 	commentId INT NOT NULL,
     commentText VARCHAR(255),
+    FOREIGN KEY (commentId) REFERENCES thread(threadId),
     PRIMARY KEY (commentId)
-);
-
-CREATE TABLE thread (
-	threadId INT AUTO_INCREMENT,
-    threadFather INT NOT NULL,
-    FOREIGN KEY (threadFather) REFERENCES post(postId),
-    FOREIGN KEY (threadFather) REFERENCES comment(commentId),
-    PRIMARY KEY (threadId)
 );
 
 CREATE TABLE userProfile_threadVote (
@@ -69,5 +69,5 @@ CREATE TABLE userProfile_threadVote (
     PRIMARY KEY (userName, threadId)
 );
 
-ALTER TABLE post ADD FOREIGN KEY (postId) REFERENCES thread(threadId);
-ALTER TABLE comment ADD FOREIGN KEY (commentId) REFERENCES thread(threadId);
+ALTER TABLE thread ADD FOREIGN KEY (threadFather) REFERENCES post(postId);
+ALTER TABLE thread ADD FOREIGN KEY (threadFather) REFERENCES comment(commentId);
