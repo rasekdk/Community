@@ -24,7 +24,16 @@ async function createUser(nombre, email, password, role) {
   return created.insertId;
 }
 
+async function userExist(userId) {
+  const pool = await database.getPool();
+  const selectQuery = 'SELECT * FROM user WHERE userId=?';
+  const [user] = await pool.query(selectQuery, userId);
+
+  return user[0];
+}
+
 module.exports = {
   getUserByEmail,
   createUser,
+  userExist,
 };

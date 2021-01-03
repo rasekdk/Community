@@ -7,7 +7,6 @@ function validateAuth(req, res, next) {
   try {
     const token = req.headers.authorization;
     const decodedToken = jwt.verify(token, JWT_SECRET);
-    console.log(decodedToken);
     const { id, name, role } = decodedToken;
 
     req.auth = { id, name, role };

@@ -6,7 +6,7 @@ const Joi = require('joi');
 const jwt = require('jsonwebtoken');
 
 // Repositories
-const { userRepository, followRepository } = require('../repositories');
+const { userRepository, registerRepository } = require('../repositories');
 
 // Register
 async function register(req, res) {
@@ -26,9 +26,9 @@ async function register(req, res) {
     } = req.body;
 
     const registerSchema = Joi.object({
-      name: Joi.string().required(),
+      name: Joi.string().regex(/^\S+$/).required(),
       email: Joi.string().email().required(),
-      password: Joi.string().min(4).max(20).required(),
+      password: Joi.string().min(4).max(20).regex(/^\S+$/).required(),
       repeatPassword: Joi.ref('password'),
       topic1: Joi.number(),
       topic2: Joi.number(),
@@ -68,9 +68,9 @@ async function register(req, res) {
       'user'
     );
 
-    const userTopics = await followRepository.registerTopics(topics, id);
+    const userTopics = await registerRepository.registerTopics(topics, id);
 
-    const userCommunities = await followRepository.registerCommunities(
+    const userCommunities = await registerRepository.registerCommunities(
       communities,
       id
     );
@@ -88,6 +88,7 @@ async function register(req, res) {
   }
 }
 
+// Login
 async function login(req, res) {
   try {
     const { email, password } = req.body;
@@ -138,6 +139,20 @@ async function login(req, res) {
   }
 }
 
+// Home
+// Logged Home - All ordered by votes on the last hour from your communities
+
+// UnLogged Home - All ordered by votes on the last hour
+
+// News
+// Logged News - All ordered by time from your communities
+
+// UnLogged News - All ordered by time
+
+// Popular
+// Logged Popular - All ordered by total votes of today from your communities
+
+// UnLogged Popular - All ordered by total votes of today
 module.exports = {
   register,
   login,
