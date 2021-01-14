@@ -1,54 +1,40 @@
 'use strict';
 
+// Require
 const Joi = require('joi');
-const jwt = require('jsonwebtoken');
 
+// Imports
 const { communityRepository, userRepository } = require('../repositories');
 
-async function getAllCommunities(req, res) {
-  try {
-    const communities = await communityRepository.getAllCommunities();
-
-    res.send(communities);
-  } catch (err) {
-    if (err.name === 'ValidationError') {
-      err.status = 400;
-    }
-    console.log(err);
-    res.status(err.status || 500);
-    res.send({ error: err.message });
-  }
-}
-
+// Community
+// Create community
 async function createCommunity(req, res) {
   try {
+    // Body
     const { comName, comBio, comTopic, comSecTopic, comAvatar } = req.body;
+    const comData = { comName, comBio, comTopic, comSecTopic, comAvatar };
+    // Params
     const tokenUserId = req.auth.id;
 
+    // Validate
     const schema = Joi.object({
       comName: Joi.string().min(4).max(25).regex(/^\S+$/).required(),
-      comBio: Joi.string().min(4).max(255),
+      comBio: Joi.string().min(3).max(255),
       comTopic: Joi.number().positive().required(),
-      comSecTopic: Joi.number().positive(),
+      comSecTopic: Joi.number().positive().allow(null),
       comAvatar: Joi.string().min(4).max(255),
     });
 
-    await schema.validateAsync({
-      comName,
-      comBio,
-      comTopic,
-      comSecTopic,
-      comAvatar,
-    });
+    await schema.validateAsync(comData);
 
-    const comData = { comName, comBio, comTopic, comSecTopic, comAvatar };
+    // SQL query
+    const createdCommunity = await communityRepository.createCommunity(tokenUserId, comData);
 
-    const createCommunity = await communityRepository.createCommunity(
-      tokenUserId,
-      comData
-    );
+    // SQL response data
+    const [community] = await communityRepository.getCommunityById(createdCommunity);
 
-    res.send(createCommunity);
+    // Response
+    res.send(community);
   } catch (err) {
     if (err.name === 'ValidationError') {
       err.status = 400;
@@ -58,110 +44,7 @@ async function createCommunity(req, res) {
     res.send({ error: err.message });
   }
 }
-
-async function getFollowedCommunities(req, res) {
-  try {
-    const tokenUserId = req.auth.id;
-
-    const queryUserId = req.query.userId;
-
-    let userId;
-
-    if (queryUserId !== undefined) {
-      userId = queryUserId;
-    } else {
-      userId = tokenUserId;
-    }
-
-    const userExist = await userRepository.userExist(userId);
-
-    if (!userExist) {
-      const error = new Error('El ususario no existe');
-      error.code = 404;
-
-      throw error;
-    }
-
-    const [communities] = await communityRepository.getFollowedCommunities(
-      userId
-    );
-
-    if (!communities) {
-      if (userId === tokenUserId) {
-        const error = new Error('No sigues a ninguna comunidad');
-        error.code = 404;
-        throw error;
-      }
-      const error = new Error('El usuario no sigue ninguna comunidad');
-      error.code = 404;
-      throw error;
-    }
-
-    res.send(communities);
-  } catch (err) {
-    if (err.name === 'ValidationError') {
-      err.status = 400;
-    }
-    console.log(err);
-    res.status(err.status || 500);
-    res.send({ error: err.message });
-  }
-}
-
-async function getCreatedCommunities(req, res) {
-  try {
-    const tokenUserId = req.auth.id;
-
-    const queryUserId = req.query.userId;
-
-    let userId;
-
-    if (queryUserId !== undefined) {
-      userId = queryUserId;
-    } else {
-      userId = tokenUserId;
-    }
-
-    const userExist = await userRepository.userExist(userId);
-
-    if (!userExist) {
-      const error = new Error('El ususario no existe');
-      error.code = 404;
-
-      throw error;
-    }
-
-    const [communities] = await communityRepository.getCreatedCommunities(
-      userId
-    );
-
-    if (!communities) {
-      if (userId === tokenUserId) {
-        const error = new Error('No sigues a ninguna comunidad');
-        error.code = 404;
-        throw error;
-      }
-      const error = new Error('El usuario no sigue ninguna comunidad');
-      error.code = 404;
-      throw error;
-    }
-
-    res.send(communities);
-  } catch (err) {
-    if (err.name === 'ValidationError') {
-      err.status = 400;
-    }
-    console.log(err);
-    res.status(err.status || 500);
-    res.send({ error: err.message });
-  }
-}
-
-async function getCommunityByName(req, res) {}
 
 module.exports = {
-  getAllCommunities,
   createCommunity,
-  getFollowedCommunities,
-  getCreatedCommunities,
 };

@@ -1,40 +1,38 @@
 'use strict';
-
+// Require
 const Joi = require('joi');
 
-const {
-  postRepository,
-  commentRepository,
-  voteRepository,
-} = require('../repositories');
+// Imports
+const { postRepository, commentRepository, voteRepository, userRepository } = require('../repositories');
+const { getPostById } = require('../repositories/postRepository');
 
 // Post
 // Create post
 async function createPost(req, res) {
   try {
-    // get body data
+    // Body
     const { postTitle, postContent, postType, comId } = req.body;
+    const postData = { postTitle, postContent, postType, comId };
 
-    // Validate body
+    // Params
+    const tokenUserId = req.auth.id;
+
+    // Validate
     const postSchema = Joi.object({
-      postTitle: Joi.string().min(4).max(50),
-      postContent: Joi.string().min(4).max(255),
-      postType: Joi.string(),
-      comId: Joi.number(),
+      postTitle: Joi.string().min(4).max(50).required(),
+      postContent: Joi.string().min(4).max(255).required(),
+      postType: Joi.string().required(),
+      comId: Joi.number().required(),
     });
     await postSchema.validateAsync({ postTitle, postContent, postType, comId });
 
-    // get all data
-    const postData = { postTitle, postContent, postType, comId };
-
-    // Get userId from login token
-    const tokenUserId = req.auth.id;
-    // create post
+    // SQL query
     const createdPost = await postRepository.createPost(tokenUserId, postData);
 
-    // get post data for show
+    // SQL response data
     const [post] = await postRepository.getPostById(createdPost);
 
+    // Response
     res.send(post);
   } catch (err) {
     console.log(err);
@@ -49,12 +47,24 @@ async function createPost(req, res) {
 // Get post by id
 async function getPost(req, res) {
   try {
-    const postId = req.params.postId;
-    const postIdSchema = Joi.number().positive().required();
-    await postIdSchema.validateAsync(postId);
+    // Params
+    const threadId = req.params.threadId;
 
-    const [post] = await postRepository.getPostById(postId);
+    // Validate
+    const threadIdSchema = Joi.number().positive().required();
+    await threadIdSchema.validateAsync(threadId);
 
+    // SQL query
+    const [post] = await postRepository.getPostById(threadId);
+
+    if (!post) {
+      const error = new Error('La url a la que quieres acceder no se encuentra');
+      error.code = 404;
+
+      throw error;
+    }
+
+    // Response
     res.send(post);
   } catch (err) {
     console.log(err);
@@ -66,40 +76,173 @@ async function getPost(req, res) {
   }
 }
 
-// Get all post of a Community
+// Update thread
+async function updatePost(req, res) {
+  try {
+    // Body
+    const { comId, postTitle, postContent, postType } = req.body;
+    const updateData = { comId, postTitle, postContent, postType };
+
+    // Params
+    const tokenUserId = req.auth.id;
+    const threadId = req.params.threadId;
+
+    // Validate
+    const postSchema = Joi.object({
+      postTitle: Joi.string().min(4).max(50),
+      postContent: Joi.string().min(4).max(255),
+      postType: Joi.string(),
+      comId: Joi.number(),
+    });
+    await postSchema.validateAsync({ postTitle, postContent, postType, comId });
+
+    const postIdSchema = Joi.number().positive().required();
+    await postIdSchema.validateAsync(threadId, tokenUserId);
+
+    // SQL query
+    await postRepository.updatePost(tokenUserId, threadId, updateData);
+
+    // SQL response data
+    const [post] = await postRepository.getPostById(threadId);
+
+    // Response
+    res.send(post);
+  } catch (err) {
+    console.log(err);
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
 
 // Comment
-// Create Comment
+// Create comment
 async function createComment(req, res) {
   try {
+    // Body
     const { commentContent } = req.body;
 
-    const postId = req.params.postId;
-    const commentId = req.query.commentId;
-    const postIdSchema = Joi.number().positive().required();
-    const commentIdSchema = Joi.number().positive();
-    await postIdSchema.validateAsync(postId);
-    await commentIdSchema.validateAsync(commentId);
-
+    // Params
+    const threadId = req.params.threadId;
     const tokenUserId = req.auth.id;
 
-    const commentSchema = Joi.object({
-      commentContent: Joi.string().min(4).max(255).required(),
-    });
+    // Validate
+    const bodySchema = Joi.string().min(1).required();
+    await bodySchema.validateAsync(commentContent);
 
-    await commentSchema.validateAsync({ commentContent });
+    const requiredIdSchema = Joi.number().positive().required();
+    await requiredIdSchema.validateAsync(threadId);
 
-    // create coment
-    const createComment = await commentRepository.createComment(
-      tokenUserId,
-      postId,
-      commentContent,
-      commentId
-    );
+    // check user
+    const checkUser = await userRepository.getUserById(tokenUserId);
 
-    // get post and comments of the post
-    const [comment] = await commentRepository.getCommentById(createComment);
+    if (!checkUser) {
+      const error = new Error('El usuario que estás usando no existe');
+      error.code = 409;
+      throw error;
+    }
 
+    // Check post
+    const checkPost = await postRepository.getPostById(threadId);
+
+    if (!checkPost) {
+      const error = new Error('No se puede crear un comentario de un post que no existe');
+      error.code = 409;
+      throw error;
+    }
+
+    // New comment
+    await commentRepository.createComment(tokenUserId, threadId, commentContent);
+
+    // Show all the thread
+    const [thread] = await postRepository.getThread(threadId);
+
+    res.send(thread);
+  } catch (err) {
+    console.log(err);
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
+// Creates a subcomment
+async function createSubComment(req, res) {
+  try {
+    // Body
+    const { commentContent } = req.body;
+
+    // Params
+    const threadId = req.params.threadId;
+    const commentId = req.params.commentId;
+    const tokenUserId = req.auth.id;
+
+    // Validate
+    const bodySchema = Joi.string().min(1).required();
+    await bodySchema.validateAsync(commentContent);
+
+    const requiredIdSchema = Joi.number().positive().required();
+    await requiredIdSchema.validateAsync(threadId, commentId);
+
+    // check user
+    const checkUser = await userRepository.getUserById(tokenUserId);
+
+    if (!checkUser) {
+      const error = new Error('El usuario que estás usando no existe');
+      error.code = 409;
+      throw error;
+    }
+
+    // Check post
+    const checkPost = await postRepository.getPostById(threadId);
+
+    if (!checkPost) {
+      const error = new Error('No se puede crear un comentario de un post que no existe');
+      error.code = 409;
+      throw error;
+    }
+
+    // New comment
+    const newComment = await commentRepository.createSubComment(tokenUserId, threadId, commentId, commentContent);
+
+    // Show all the thread
+    const [thread] = await postRepository.getThread(threadId);
+
+    res.send(thread);
+  } catch (err) {
+    console.log(err);
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
+
+// Get comment
+async function getComment(req, res) {
+  try {
+    // Params
+    const threadId = req.params.threadId;
+
+    // Validate
+    const threadIdSchema = Joi.number().positive().required();
+    await threadIdSchema.validateAsync(threadId);
+
+    // SQL query
+    const [comment] = await commentRepository.getCommentById(threadId);
+
+    if (!comment) {
+      const error = new Error('La url a la que quieres acceder no se encuentra');
+      error.code = 404;
+
+      throw error;
+    }
+
+    // Response
     res.send(comment);
   } catch (err) {
     console.log(err);
@@ -111,35 +254,93 @@ async function createComment(req, res) {
   }
 }
 
-// Votes
-// Create vote
-async function addVote(req, res) {
+// Update comment
+async function updateComment(req, res) {
   try {
+    // Body
+    const { commentContent } = req.body;
+
+    // Params
     const threadId = req.params.threadId;
-    const vote = req.query.vote;
     const tokenUserId = req.auth.id;
 
-    const schemaId = Joi.number().required();
-    const schemaVote = Joi.string().min(1).max(1).required();
+    // Validate
+    const bodySchema = Joi.string().min(1).required();
+    await bodySchema.validateAsync(commentContent);
 
-    await schemaId.validateAsync(threadId, tokenUserId);
-    await schemaVote.validateAsync(vote);
+    const requiredIdSchema = Joi.number().positive().required();
+    await requiredIdSchema.validateAsync(threadId);
 
-    let voteType;
+    // check user
+    const checkUser = await userRepository.getUserById(tokenUserId);
 
-    if (vote === 'p') {
-      voteType = 1;
-    } else if (vote === 'n') {
-      voteType = -1;
+    if (!checkUser) {
+      const error = new Error('El usuario que estás usando no existe');
+      error.code = 409;
+      throw error;
     }
 
-    const createVote = await voteRepository.addVote(
-      tokenUserId,
-      threadId,
-      voteType
-    );
+    // Check post
+    const checkPost = await postRepository.getPostById(threadId);
 
-    res.send(createVote);
+    if (!checkPost) {
+      const error = new Error('No se puede editar un comentario de un post que no existe');
+      error.code = 409;
+      throw error;
+    }
+
+    // SQL query
+    await commentRepository.updateComment(tokenUserId, threadId, commentContent);
+
+    // SQL response data
+    const [comment] = await commentRepository.getCommentById(threadId);
+
+    // Response
+    res.send(comment);
+  } catch (err) {
+    console.log(err);
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
+
+// Thread (for both post and comments, insert threadId for actions)
+// get Thread
+async function getThread(req, res) {
+  try {
+    const threadId = req.params.threadId;
+    const thread = await postRepository.getThread(threadId);
+
+    res.send(thread);
+  } catch (err) {
+    console.log(err);
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
+
+// Delete thread
+async function deleteThread(req, res) {
+  try {
+    // Params
+    const userId = req.auth.id;
+    const threadId = req.params.threadId;
+
+    // Validate
+    const threadIdSchema = Joi.number().positive().required();
+    await threadIdSchema.validateAsync(threadId);
+
+    // SQL query
+    await postRepository.deleteThread(userId, threadId);
+
+    // Response
+    res.send(`El hilo ${threadId} ha sido eliminado`);
   } catch (err) {
     console.log(err);
     if (err.name === 'ValidationError') {
@@ -152,7 +353,12 @@ async function addVote(req, res) {
 
 module.exports = {
   createPost,
-  createComment,
   getPost,
-  addVote,
+  updatePost,
+  createComment,
+  createSubComment,
+  getComment,
+  updateComment,
+  getThread,
+  deleteThread,
 };

@@ -42,10 +42,19 @@ async function register(req, res) {
 
     await registerSchema.validateAsync(req.body);
 
-    const userExist = await userRepository.getUserByEmail(email);
+    const userEmail = await userRepository.getUserByEmail(email);
 
-    if (userExist) {
+    if (userEmail) {
       const error = new Error('Ya existe el usuario con este email');
+      error.status = 409;
+
+      throw error;
+    }
+
+    const userName = await userRepository.getUserByName(name);
+
+    if (userName) {
+      const error = new Error('Ya existe el usuario con este nombre');
       error.status = 409;
 
       throw error;
@@ -61,22 +70,27 @@ async function register(req, res) {
     };
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const id = await userRepository.createUser(
-      name,
-      email,
-      passwordHash,
-      'user'
+    const id = await userRepository.createUser(name, email, passwordHash, 'user');
+
+    const userTopics = await registerRepository.followTopicsOnRegister(topics, id);
+
+    const [userCommunities] = await registerRepository.followCommunitiesOnRegister(communities, id);
+
+    // list topics
+    const topicsList = [].concat.apply(
+      [],
+      userTopics.map((x) => Object.values(x))
     );
 
-    const userTopics = await registerRepository.registerTopics(topics, id);
-
-    const userCommunities = await registerRepository.registerCommunities(
-      communities,
-      id
+    // list communities
+    const communitiesList = [].concat.apply(
+      [],
+      userCommunities.map((x) => Object.values(x))
     );
 
+    // Response
     return res.send(
-      `Se ha creado el usuario ${id} ha seguido los siguientes topics ${userTopics} y las comunidades ${userCommunities}`
+      `Se ha creado el usuario ${id} ha seguido los siguientes topics ${topicsList} y las comunidades ${communitiesList}`
     );
   } catch (err) {
     if (err.name === 'ValidationError') {

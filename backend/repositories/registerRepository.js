@@ -1,50 +1,39 @@
 'use strict';
 
+// Imports
 const database = require('../infrastructure/database');
+const followRepository = require('./followRepository');
+const topicRepository = require('./topicRepository');
+const communityRepository = require('./communityRepository');
 
-async function registerTopics(topics, userId) {
-  const pool = await database.getPool();
+// follow topics when user register
+async function followTopicsOnRegister(topics, userId) {
+  // Loop the SQL follow to topic
   for (let topic of Object.values(topics)) {
     if (topic === undefined) {
       break;
     }
-    const insertQuery =
-      'INSERT INTO user_topic_follow (topicId, userId) VALUES (?,?)';
-    await pool.query(insertQuery, [topic, userId]);
+    // Follow the topic
+    await followRepository.followTopic(topic, userId);
   }
-  const selectQuery =
-    'SELECT topicName FROM user_topic_follow f INNER JOIN  topic t ON t.topicId = f.topicId WHERE userId = ?';
-  const [topicsArray] = await pool.query(selectQuery, userId);
 
-  const myTopics = [].concat.apply(
-    [],
-    topicsArray.map((x) => Object.values(x))
-  );
-
-  return myTopics;
+  // Response
+  return await topicRepository.getFollowedTopics(userId);
 }
 
-async function registerCommunities(communities, userId) {
-  const pool = await database.getPool();
+// follow communities when user register
+async function followCommunitiesOnRegister(communities, userId) {
+  // Loop the SQL follow to community
   for (let community of Object.values(communities)) {
     if (community === undefined) {
       break;
     }
-
-    const insertQuery =
-      'INSERT INTO user_community_follow (comId, userId) VALUES (?,?)';
-    await pool.query(insertQuery, [community, userId]);
+    // Follow de community
+    await followRepository.followCommunity(community, userId);
   }
-  const selectQuery =
-    'SELECT comName FROM user_community_follow f INNER JOIN  community c ON c.comId = f.comId WHERE userId = ?';
-  const [communitiesArray] = await pool.query(selectQuery, userId);
 
-  const myCommunities = [].concat.apply(
-    [],
-    communitiesArray.map((x) => Object.values(x))
-  );
-
-  return myCommunities;
+  // Response
+  return await communityRepository.getFollowedCommunitiesNames(userId);
 }
 
-module.exports = { registerTopics, registerCommunities };
+module.exports = { followTopicsOnRegister, followCommunitiesOnRegister };
