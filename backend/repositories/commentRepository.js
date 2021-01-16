@@ -94,10 +94,23 @@ async function getAllCommentsByPostId(threadId) {
   return comments;
 }
 
+async function getCommentsByUser(userId) {
+  // SQL
+  const pool = await database.getPool();
+
+  const selectQuery =
+    'SELECT t.threadId, u.userName, c.commentContent, (SELECT SUM(v.voteType) FROM user_thread_vote v WHERE v.threadId = t.threadId) AS Votes FROM thread t INNER JOIN comment c ON t.threadId = c.threadId INNER JOIN user u ON t.userId = u.userId WHERE t.userId = ?';
+
+  const [comments] = await pool.query(selectQuery, userId);
+
+  return comments;
+}
+
 module.exports = {
   createComment,
   createSubComment,
   updateComment,
   getCommentById,
   getAllCommentsByPostId,
+  getCommentsByUser,
 };

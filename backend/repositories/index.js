@@ -7,6 +7,8 @@ const commentRepository = require('./commentRepository');
 const communityRepository = require('./communityRepository');
 const voteRepository = require('./voteRepository');
 const updateRepository = require('./updateRepository');
+const topicRepository = require('./topicRepository');
+const followRepository = require('./followRepository');
 
 module.exports = {
   userRepository,
@@ -16,4 +18,6 @@ module.exports = {
   communityRepository,
   voteRepository,
   updateRepository,
+  topicRepository,
+  followRepository,
 };

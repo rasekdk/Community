@@ -30,7 +30,7 @@ async function getPostById(threadId) {
   // SQL
   const pool = await database.getPool();
   const selectQuery =
-    'SELECT p.threadId, u.userName, p.postTitle, p.postContent, p.postType, t.threadDate,  COUNT(c.commentId) AS comentarios,   cm.comName, cm.comId, up.updateDate FROM post p   INNER JOIN thread t  ON p.threadId = t.threadId   INNER JOIN community cm  ON p.comId = cm.comId INNER JOIN user u ON t.userId = u.userId LEFT OUTER JOIN thread_update up   ON p.threadId = up.threadId  LEFT OUTER JOIN comment c  ON p.threadId = c.threadPost  LEFT OUTER JOIN comment c2  ON c.threadId = c2.threadComment  WHERE p.threadId = ? GROUP BY t.threadId';
+    'SELECT p.threadId, u.userName, p.postTitle, p.postContent, p.postType, t.threadDate,  COUNT(c.commentId) AS comentarios,   cm.comName, cm.comId, up.updateDate, SUM(v.voteType) AS votos FROM post p   INNER JOIN thread t  ON p.threadId = t.threadId   INNER JOIN community cm  ON p.comId = cm.comId INNER JOIN user u ON t.userId = u.userId LEFT OUTER JOIN thread_update up   ON p.threadId = up.threadId  LEFT OUTER JOIN comment c  ON p.threadId = c.threadPost  LEFT OUTER JOIN comment c2  ON c.threadId = c2.threadComment LEFT OUTER JOIN user_thread_vote v ON p.threadId = v.threadId  WHERE p.threadId = ? GROUP BY t.threadId';
   const [post] = await pool.query(selectQuery, threadId);
 
   // Respone
@@ -107,8 +107,10 @@ async function getThread(threadId) {
 
 // Delete thread
 async function deleteThread(userId, threadId) {
+  // SQL
   const pool = await database.getPool();
 
+  // Validate
   const selectQuery = 'SELECT userId FROM thread WHERE threadId =?';
   const [threadData] = await pool.query(selectQuery, threadId);
 
@@ -130,10 +132,23 @@ async function deleteThread(userId, threadId) {
   await pool.query(deleteQuery, threadId);
 }
 
+async function getPostsByUser(userId) {
+  // SQL
+  const pool = await database.getPool();
+
+  const selectQuery =
+    'SELECT t.threadId, u.userName, p.postTitle, p.postContent,  (SELECT SUM(v.voteType) FROM user_thread_vote v WHERE v.threadId = t.threadId)  AS Votes, (SELECT COUNT(c.commentId) FROM comment c WHERE c.threadPost = t.threadId) AS Comments FROM thread t INNER JOIN post p  ON t.threadId = p.threadId INNER JOIN user u ON t.userId = u.userId WHERE t.userId = ?';
+
+  const [comments] = await pool.query(selectQuery, userId);
+
+  return comments;
+}
+
 module.exports = {
   createPost,
   getPostById,
   updatePost,
   getThread,
   deleteThread,
+  getPostsByUser,
 };

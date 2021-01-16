@@ -351,6 +351,43 @@ async function deleteThread(req, res) {
   }
 }
 
+// Create Vote
+async function addVote(req, res) {
+  try {
+    // Params
+    const threadId = req.params.threadId;
+    const vote = req.query.vote;
+    const tokenUserId = req.auth.id;
+
+    // Validate
+    const schemaId = Joi.number().required();
+    const schemaVote = Joi.string().min(1).max(1).required();
+
+    await schemaId.validateAsync(threadId, tokenUserId);
+    await schemaVote.validateAsync(vote);
+
+    // Type of vote
+    let voteType;
+
+    if (vote === 'p') {
+      voteType = 1;
+    } else if (vote === 'n') {
+      voteType = -1;
+    }
+
+    const createVote = await voteRepository.addVote(tokenUserId, threadId, voteType);
+
+    res.send(createVote);
+  } catch (err) {
+    console.log(err);
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
+
 module.exports = {
   createPost,
   getPost,
@@ -361,4 +398,5 @@ module.exports = {
   updateComment,
   getThread,
   deleteThread,
+  addVote,
 };

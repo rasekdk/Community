@@ -153,6 +153,29 @@ async function login(req, res) {
   }
 }
 
+async function getUser(req, res) {
+  try {
+    // Params
+    const userName = req.params.name;
+
+    // Validate
+    const userSchema = Joi.string().regex(/^\S+$/).required();
+
+    await userSchema.validateAsync(userName);
+
+    const user = await userRepository.getUserPage(userName);
+
+    res.send(user);
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    console.log(err);
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
+
 // Home
 // Logged Home - All ordered by votes on the last hour from your communities
 
@@ -170,4 +193,5 @@ async function login(req, res) {
 module.exports = {
   register,
   login,
+  getUser,
 };
