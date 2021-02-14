@@ -1,8 +1,10 @@
 import PostBodyText from './PostBodyText';
 import PostBodyImage from './PostBodyImage';
 import IconUser from '../icons/IconUser';
+import useData from '../../hooks/useData';
 
 const PostBlock = ({ data, user }) => {
+  const timeAgo = useData(data.threadDate);
   return (
     <div className="post-block">
       <header>
@@ -23,11 +25,11 @@ const PostBlock = ({ data, user }) => {
               {`c/${data.comName}`}
             </a>
             <p>
-              posted by
+              creado por
               <a href={`/u/${data.userName}`} className="user-link link">
                 {` u/${data.userName} `}
               </a>
-              1 hour ago
+              {`hace ${timeAgo}`}
             </p>
           </div>
         </div>

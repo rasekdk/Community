@@ -88,7 +88,7 @@ async function getAllCommentsByPostId(threadId) {
   // SQL
   const pool = await database.getPool();
   const commentQuery =
-    'SELECT c.threadId, c.threadPost, c.threadComment, c.commentContent, (SELECT SUM(COALESCE(v.voteType, 0)) FROM user_thread_vote v  WHERE c.threadId = v.threadId) AS votes, (SELECT v2.voteType FROM user_thread_vote v2 WHERE c.threadId =  v2.threadId AND v2.userId = 154) AS voted, u.userName, u.userId, u.userAvatar FROM comment c INNER JOIN thread t ON c.threadId = t.threadId INNER JOIN user u ON t.userId = u.userId  WHERE c.threadPost = ?';
+    'SELECT c.threadId, c.threadPost, c.threadComment, c.commentContent, t.threadDate, (SELECT SUM(COALESCE(v.voteType, 0)) FROM user_thread_vote v  WHERE c.threadId = v.threadId) AS votes, (SELECT v2.voteType FROM user_thread_vote v2 WHERE c.threadId =  v2.threadId AND v2.userId = 154) AS voted, u.userName, u.userId, u.userAvatar FROM comment c INNER JOIN thread t ON c.threadId = t.threadId INNER JOIN user u ON t.userId = u.userId  WHERE c.threadPost = ?';
   const [comments] = await pool.query(commentQuery, threadId);
 
   // Response
@@ -100,7 +100,7 @@ async function getCommentsByUser(userName) {
   const pool = await database.getPool();
 
   const selectQuery =
-    'SELECT t.threadId, u.userName, u.userId, u.userAvatar, c.commentContent, c.threadPost, (SELECT SUM(v.voteType) FROM user_thread_vote v WHERE v.threadId = t.threadId) AS Votes FROM thread t INNER JOIN comment c ON t.threadId = c.threadId INNER JOIN user u ON t.userId = u.userId WHERE u.userName = ?';
+    'SELECT t.threadId, u.userName, u.userId, u.userAvatar, c.commentContent, c.threadPost, t.threadDate, (SELECT SUM(v.voteType) FROM user_thread_vote v WHERE v.threadId = t.threadId) AS Votes FROM thread t INNER JOIN comment c ON t.threadId = c.threadId INNER JOIN user u ON t.userId = u.userId WHERE u.userName = ? ORDER BY t.threadDate DESC';
 
   const [comments] = await pool.query(selectQuery, userName);
 

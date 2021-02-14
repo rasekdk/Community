@@ -158,7 +158,7 @@ async function getPostsByUser(userName) {
   const pool = await database.getPool();
 
   const selectQuery =
-    'SELECT t.threadId, u.userName, u.userId, u.userAvatar, p.postTitle, p.postContent, p.postType,  (SELECT SUM(v.voteType) FROM user_thread_vote v WHERE v.threadId = t.threadId)  AS Votes, (SELECT COUNT(c.commentId) FROM comment c WHERE c.threadPost = t.threadId) AS comments FROM thread t INNER JOIN post p  ON t.threadId = p.threadId INNER JOIN user u ON t.userId = u.userId WHERE u.userName = ? ORDER BY t.threadDate DESC';
+    'SELECT t.threadId, u.userName, u.userId, u.userAvatar, p.postTitle, p.postContent, p.postType, t.threadDate, (SELECT SUM(v.voteType) FROM user_thread_vote v WHERE v.threadId = t.threadId)  AS Votes, (SELECT COUNT(c.commentId) FROM comment c WHERE c.threadPost = t.threadId) AS comments FROM thread t INNER JOIN post p  ON t.threadId = p.threadId INNER JOIN user u ON t.userId = u.userId WHERE u.userName = ? ORDER BY t.threadDate DESC';
 
   const [comments] = await pool.query(selectQuery, userName);
 
@@ -179,7 +179,7 @@ async function getHomePosts(user) {
   }
 
   const postsQuery =
-    'SELECT p.threadId, p.postTitle, p.postContent, p.postType, cm.comName, u.userName, u.userId, u.userAvatar, (SELECT COUNT(c.threadPost) FROM comment c WHERE c.threadPost = p.threadId) as comments, (SELECT SUM(v.voteType) FROM user_thread_vote v WHERE v.threadId = p.threadId) AS votes, (SELECT voteType FROM user_thread_vote v2 WHERE v2.threadId = p.threadId AND v2.userId = f.userId) AS voted FROM post p INNER JOIN thread t ON p.threadId = t.threadId INNER JOIN user u ON t.userId = u.userId INNER JOIN community cm ON cm.comId = p.comId INNER JOIN user_community_follow f ON f.comId = cm.comId WHERE f.userId = ?';
+    'SELECT p.threadId, p.postTitle, p.postContent, p.postType, cm.comName, u.userName, u.userId, u.userAvatar, t.threadDate, (SELECT COUNT(c.threadPost) FROM comment c WHERE c.threadPost = p.threadId) as comments, (SELECT SUM(v.voteType) FROM user_thread_vote v WHERE v.threadId = p.threadId) AS votes, (SELECT voteType FROM user_thread_vote v2 WHERE v2.threadId = p.threadId AND v2.userId = f.userId) AS voted FROM post p INNER JOIN thread t ON p.threadId = t.threadId INNER JOIN user u ON t.userId = u.userId INNER JOIN community cm ON cm.comId = p.comId INNER JOIN user_community_follow f ON f.comId = cm.comId WHERE f.userId = ?';
   const [post] = await pool.query(postsQuery, user);
 
   return post;

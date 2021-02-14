@@ -5,9 +5,12 @@ import CreateComment from '../actions/CreateComment';
 import IconUser from '../icons/IconUser';
 import { useState } from 'react';
 import Options from '../actions/Options';
+import useData from '../../hooks/useData';
 
 const Comment = ({ data, setPost, setComments, onClick, user }) => {
   const [optionsOpen, setOptionsOpen] = useState(false);
+
+  const timeAgo = useData(data.threadDate);
 
   const toggleOptions = () => {
     setOptionsOpen(!optionsOpen);
@@ -34,7 +37,7 @@ const Comment = ({ data, setPost, setComments, onClick, user }) => {
                 {` u/${data.userName} `}
               </a>
             </p>
-            <p>1 hour ago</p>
+            <p>{`hace ${timeAgo}`}</p>
           </div>
         </div>
       </header>
@@ -43,19 +46,10 @@ const Comment = ({ data, setPost, setComments, onClick, user }) => {
       </p>
       <div className="post-actions">
         <LikeDislike data={data} />
-        {data.threadComment === null ? (
-          <CreateComment
-            data={data}
-            setPost={setPost}
-            setComments={setComments}
-          />
-        ) : null}
+        {data.threadComment === null ? <CreateComment data={data} setPost={setPost} setComments={setComments} /> : null}
 
         <div className="post-single-action">
-          <IconMore
-            className={`more ico small ${optionsOpen ? 'active' : null}`}
-            onClick={toggleOptions}
-          />
+          <IconMore className={`more ico small ${optionsOpen ? 'active' : null}`} onClick={toggleOptions} />
           <Options
             data={data}
             setComments={setComments}
@@ -67,14 +61,7 @@ const Comment = ({ data, setPost, setComments, onClick, user }) => {
       </div>
       {data.comment
         ? data.comment.map((reply) => {
-            return (
-              <Comment
-                key={reply.threadId}
-                data={reply}
-                setPost={setPost}
-                setComments={setComments}
-              />
-            );
+            return <Comment key={reply.threadId} data={reply} setPost={setPost} setComments={setComments} />;
           })
         : null}
     </DivHolder>

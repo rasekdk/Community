@@ -26,3 +26,5 @@ yarn-error.log*
 .eslintrc.js
 .eslintcache
 .prettierrc
+
+suport.js
