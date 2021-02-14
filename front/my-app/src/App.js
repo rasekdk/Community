@@ -37,12 +37,7 @@ function App() {
   const [datos] = useContext(AuthContext);
   const [currentRoute, setCurrentRoute] = useState();
   const location = useLocation();
-  const routesLogin = [
-    '/register',
-    '/login',
-    '/register/topic',
-    '/register/community',
-  ];
+  const routesLogin = ['/register', '/login', '/register/topic', '/register/community'];
   const routesHome = ['', '/', '/new', '/home', '/popular'];
   const [showModal, setShowModal] = useState(false);
 
@@ -60,8 +55,7 @@ function App() {
 
       <Header />
       {routesHome.includes(currentRoute) ? <SubHeaderHome /> : null}
-      {routesHome.includes(currentRoute) ||
-      routesLogin.includes(currentRoute) ? null : (
+      {routesHome.includes(currentRoute) || routesLogin.includes(currentRoute) ? null : (
         <SubHeaderBack currentRoute={currentRoute} />
       )}
 
