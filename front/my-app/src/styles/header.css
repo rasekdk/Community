@@ -1,0 +1,95 @@
+/* HEADER */
+
+.App > header {
+  display: flex;
+  position: fixed;
+  background-color: var(--main-background);
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  padding: 1rem;
+  align-items: center;
+}
+
+.App > header form {
+  flex: 1 1 auto;
+  padding-left: 0.5rem;
+}
+
+.App > header form input {
+  width: 100%;
+  line-height: 2rem;
+  outline: none;
+  border: none;
+  border-radius: 1rem;
+  background-color: var(--grey-color);
+  color: var(--text-color);
+  padding: 0 1rem;
+  font-weight: bold;
+}
+
+.App > header form input::placeholder {
+  color: var(--unfocus-color);
+}
+
+header img {
+  background-color: var(--grey-color);
+  width: 2rem;
+  height: 2rem;
+  border-radius: 2rem;
+}
+
+/* SUB HEADER */
+.sub-header-home,
+.sub-header-back {
+  position: fixed;
+  background: var(--main-background);
+  width: 100%;
+  top: 4rem;
+  left: 0;
+  z-index: 999;
+  height: 2rem;
+}
+
+.sub-header-home ul,
+.sub-header-back ul {
+  display: flex;
+  justify-content: space-around;
+  list-style: none;
+  align-items: center;
+  color: var(--text-color);
+}
+
+.sub-header-home ul li::after,
+.sub-header-back ul li::after {
+  content: '';
+  height: 2px;
+  position: relative;
+  bottom: 2px;
+  width: 0%;
+  background-color: var(--main-color);
+  display: block;
+  transition: 1s;
+  margin: 0 auto;
+}
+
+.sub-header-home ul li.active::after,
+.sub-header-back ul li.active::after {
+  width: 100%;
+}
+
+.sub-header-home ul li a,
+.sub-header-back ul li a {
+  line-height: 2rem;
+}
+
+.sub-header-back {
+  display: flex;
+  align-items: center;
+}
+
+.sub-header-back ul {
+  flex-grow: 1;
+  margin-right: 1.5rem;
+}

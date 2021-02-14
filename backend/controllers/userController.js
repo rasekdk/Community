@@ -6,97 +6,62 @@ const Joi = require('joi');
 const jwt = require('jsonwebtoken');
 
 // Repositories
-const { userRepository, registerRepository } = require('../repositories');
+const { userRepository } = require('../repositories');
 
 // Register
 async function register(req, res) {
   try {
-    const {
-      name,
-      email,
-      password,
-      topic1,
-      topic2,
-      topic3,
-      community1,
-      community2,
-      community3,
-      community4,
-      community5,
-    } = req.body;
+    const { name, email, password } = req.body;
 
     const registerSchema = Joi.object({
       name: Joi.string().regex(/^\S+$/).required(),
       email: Joi.string().email().required(),
       password: Joi.string().min(4).max(20).regex(/^\S+$/).required(),
       repeatPassword: Joi.ref('password'),
-      topic1: Joi.number(),
-      topic2: Joi.number(),
-      topic3: Joi.number(),
-      community1: Joi.number(),
-      community2: Joi.number(),
-      community3: Joi.number(),
-      community4: Joi.number(),
-      community5: Joi.number(),
     });
 
     await registerSchema.validateAsync(req.body);
 
     const userEmail = await userRepository.getUserByEmail(email);
-
-    if (userEmail) {
-      const error = new Error('Ya existe el usuario con este email');
-      error.status = 409;
-
-      throw error;
-    }
-
     const userName = await userRepository.getUserByName(name);
 
     if (userName) {
-      const error = new Error('Ya existe el usuario con este nombre');
+      const err = 'used name';
+      const error = new Error(err);
       error.status = 409;
 
       throw error;
     }
 
-    const topics = { topic1, topic2, topic3 };
-    const communities = {
-      community1,
-      community2,
-      community3,
-      community4,
-      community5,
-    };
+    if (userEmail) {
+      const err = 'used email';
+      const error = new Error(err);
+      error.status = 409;
+
+      throw error;
+    }
 
     const passwordHash = await bcrypt.hash(password, 10);
     const id = await userRepository.createUser(name, email, passwordHash, 'user');
 
-    const userTopics = await registerRepository.followTopicsOnRegister(topics, id);
+    const user = await userRepository.getUserById(id);
+    // generate jwt
+    const tokenPayload = {
+      id: user.userId,
+      name: user.userName,
+      role: user.userRole,
+    };
+    const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {
+      expiresIn: '30d',
+    });
 
-    const [userCommunities] = await registerRepository.followCommunitiesOnRegister(communities, id);
-
-    // list topics
-    const topicsList = [].concat.apply(
-      [],
-      userTopics.map((x) => Object.values(x))
-    );
-
-    // list communities
-    const communitiesList = [].concat.apply(
-      [],
-      userCommunities.map((x) => Object.values(x))
-    );
-
-    // Response
-    return res.send(
-      `Se ha creado el usuario ${id} ha seguido los siguientes topics ${topicsList} y las comunidades ${communitiesList}`
-    );
+    res.send({ auth: token });
   } catch (err) {
+    console.log(err.message);
     if (err.name === 'ValidationError') {
       err.status = 400;
     }
-    console.log(err);
+    console.log('error', err);
     res.status(err.status || 500);
     res.send({ error: err.message });
   }
@@ -105,20 +70,32 @@ async function register(req, res) {
 // Login
 async function login(req, res) {
   try {
-    const { email, password } = req.body;
+    const { name, password } = req.body;
 
     const schema = Joi.object({
-      email: Joi.string().email().required(),
+      name: Joi.string().required(),
       password: Joi.string().min(4).max(20).required(),
     });
 
-    await schema.validateAsync({ email, password });
+    await schema.validateAsync({ name, password });
 
-    // get user from DB
-    const user = await userRepository.getUserByEmail(email);
+    function validateEmail(email) {
+      var re = /\S+@\S+\.\S+/;
+      return re.test(email);
+    }
+
+    const loginUseEmail = validateEmail(name);
+
+    let user;
+
+    loginUseEmail
+      ? (user = await userRepository.getUserByEmail(name))
+      : (user = await userRepository.getUserByName(name));
+
+    console.log('user', user);
 
     if (!user) {
-      const error = new Error('No existe ningún usuario con ese email');
+      const error = new Error('El usuario no es correcto');
       error.code = 404;
       throw error;
     }
@@ -142,7 +119,7 @@ async function login(req, res) {
       expiresIn: '30d',
     });
 
-    res.send(token);
+    res.send({ auth: token });
   } catch (err) {
     if (err.name === 'ValidationError') {
       err.status = 400;
@@ -176,22 +153,47 @@ async function getUser(req, res) {
   }
 }
 
-// Home
-// Logged Home - All ordered by votes on the last hour from your communities
+async function updateUser(req, res) {
+  try {
+    // Params
+    const userId = req.params.name;
+    const tokenUserId = req.auth.id;
 
-// UnLogged Home - All ordered by votes on the last hour
+    // Body
+    const { userName, userEmail, userPassword, userAvatar, userBio } = req.body;
+    const data = { userName, userEmail, userPassword, userAvatar, userBio };
 
-// News
-// Logged News - All ordered by time from your communities
+    // Validate
+    const userSchema = Joi.string().regex(/^\S+$/).required();
+    const idSchema = Joi.number().positive().required();
+    const dataSchema = Joi.object({
+      userName: Joi.string().regex(/^\S+$/),
+      userEmail: Joi.string().email(),
+      userPassword: Joi.string().min(4).max(20).regex(/^\S+$/),
+      userAvatar: Joi.string(),
+      userBio: Joi.string(),
+    });
 
-// UnLogged News - All ordered by time
+    await dataSchema.validateAsync(data);
+    await userSchema.validateAsync(userId);
+    await idSchema.validateAsync(tokenUserId);
 
-// Popular
-// Logged Popular - All ordered by total votes of today from your communities
+    const user = await userRepository.updateUser(tokenUserId, userId, data);
 
-// UnLogged Popular - All ordered by total votes of today
+    res.send(user);
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    console.log(err);
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
+
 module.exports = {
   register,
   login,
   getUser,
+  updateUser,
 };

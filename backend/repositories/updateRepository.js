@@ -63,9 +63,30 @@ async function updateComment(data, threadId) {
   return true;
 }
 
+// User
+async function updateUser(data, userId) {
+  // SQL
+  const pool = await database.getPool();
+
+  // Update comment
+  const updateQuery =
+    'UPDATE user u SET u.userName = ?, u.userEmail = ?, u.userPassword = ?, u.userAvatar = ?, u.userBio = ? WHERE userId = ?';
+  await pool.query(updateQuery, [
+    data.userName,
+    data.userEmail,
+    data.userPassword,
+    data.userAvatar,
+    data.userBio,
+    userId,
+  ]);
+
+  return true;
+}
+
 // Export
 module.exports = {
   addUpdate,
   updatePost,
   updateComment,
+  updateUser,
 };

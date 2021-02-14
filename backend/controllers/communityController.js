@@ -2,6 +2,8 @@
 
 // Require
 const Joi = require('joi');
+const jwt = require('jsonwebtoken');
+const { JWT_SECRET } = process.env;
 
 // Imports
 const { communityRepository, followRepository } = require('../repositories');
@@ -48,11 +50,37 @@ async function createCommunity(req, res) {
 async function getCommunities(req, res) {
   try {
     // Params
+    const token = req.headers.auth;
+
+    let communities;
+
+    if (!token) {
+      communities = await communityRepository.getAllCommunities();
+    } else {
+      const decodedToken = jwt.verify(token, JWT_SECRET);
+      const { id } = decodedToken;
+      communities = await communityRepository.getAllCommunitiesUser(id);
+    }
+
+    res.send(communities);
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    console.log(err);
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
+
+async function getcommunityById(req, res) {
+  try {
+    // Params
     const id = req.params.id;
 
     // For id = number => getCommunityById / For id = string => getCommunitybyName / For id = undefined => getAllCommunities
     if (id === undefined) {
-      res.send(await communityRepository.getAllCommunities());
+      res.send(await getCommunities(req, res));
     } else if (!isNaN(id)) {
       res.send(await communityRepository.getCommunityById(id));
     } else if (isNaN(id)) {
@@ -129,15 +157,30 @@ async function followCommunity(req, res) {
     const follow = await communityRepository.checkFollow(comId, userTokenId);
 
     if (follow[0]) {
-      const error = new Error('Ya sigues la communidad');
-      error.code = 409;
-
-      throw error;
+      await followRepository.unfollowCommunity(comId, userTokenId);
+      res.send(await communityRepository.getAllCommunitiesUser(userTokenId));
+    } else {
+      await followRepository.followCommunity(comId, userTokenId);
+      res.send(await communityRepository.getAllCommunitiesUser(userTokenId));
     }
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    console.log(err);
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
 
-    await followRepository.followCommunity(comId, userTokenId);
+async function getFollowedCommunities(req, res) {
+  try {
+    // Paramas
+    const userTokenId = req.auth.id;
 
-    res.send(`Has seguido la comunidad ${comId}`);
+    const [communities] = await communityRepository.getFollowedCommunities(userTokenId);
+
+    res.send(communities);
   } catch (err) {
     if (err.name === 'ValidationError') {
       err.status = 400;
@@ -152,4 +195,6 @@ module.exports = {
   getCommunities,
   deleteCommunity,
   followCommunity,
+  getcommunityById,
+  getFollowedCommunities,
 };

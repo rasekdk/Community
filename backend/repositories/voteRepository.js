@@ -29,6 +29,29 @@ async function addVote(userId, threadId, voteType) {
   return newVote[0];
 }
 
+async function unVote(userId, threadId) {
+  // SQL
+  const pool = await database.getPool();
+
+  const deleteQuery = 'DELETE FROM user_thread_vote WHERE userId = ? AND threadId = ?';
+
+  const [newVote] = await pool.query(deleteQuery, [userId, threadId]);
+
+  return newVote[0];
+}
+
+async function voteCount(threadId) {
+  const pool = await database.getPool();
+
+  const selectQuery = 'SELECT SUM(v.VoteType) AS votes FROM user_thread_vote v WHERE v.threadId = ?';
+
+  const [voteCount] = await pool.query(selectQuery, threadId);
+
+  return voteCount;
+}
+
 module.exports = {
   addVote,
+  unVote,
+  voteCount,
 };

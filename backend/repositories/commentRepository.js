@@ -14,7 +14,7 @@ async function createComment(userId, postThreadId, commentContent) {
   const pool = await database.getPool();
   const commentQuery = 'INSERT INTO comment (threadId, threadPost, commentContent) VALUES (?,?,?)';
 
-  await pool.query(commentQuery, [threadId, postThreadId, commentContent]);
+  const [comment] = await pool.query(commentQuery, [threadId, postThreadId, commentContent]);
 
   // Response
   return threadId;
@@ -76,7 +76,7 @@ async function getCommentById(threadId) {
   // SQL
   const pool = await database.getPool();
   const selectQuery =
-    'SELECT * FROM comment c LEFT OUTER JOIN thread_update u  ON c.threadId = u.threadId WHERE c.threadId = ?';
+    'SELECT c.threadId, c.threadPost, c.threadComment, commentContent, updateDate FROM comment c LEFT OUTER JOIN thread_update u  ON c.threadId = u.threadId WHERE c.threadId = ?';
   const [comment] = await pool.query(selectQuery, threadId);
 
   // Response
@@ -87,23 +87,36 @@ async function getCommentById(threadId) {
 async function getAllCommentsByPostId(threadId) {
   // SQL
   const pool = await database.getPool();
-  const commentQuery = 'SELECT * FROM comment WHERE threadPost = ?';
+  const commentQuery =
+    'SELECT c.threadId, c.threadPost, c.threadComment, c.commentContent, (SELECT SUM(COALESCE(v.voteType, 0)) FROM user_thread_vote v  WHERE c.threadId = v.threadId) AS votes, (SELECT v2.voteType FROM user_thread_vote v2 WHERE c.threadId =  v2.threadId AND v2.userId = 154) AS voted, u.userName, u.userId, u.userAvatar FROM comment c INNER JOIN thread t ON c.threadId = t.threadId INNER JOIN user u ON t.userId = u.userId  WHERE c.threadPost = ?';
   const [comments] = await pool.query(commentQuery, threadId);
 
   // Response
   return comments;
 }
 
-async function getCommentsByUser(userId) {
+async function getCommentsByUser(userName) {
   // SQL
   const pool = await database.getPool();
 
   const selectQuery =
-    'SELECT t.threadId, u.userName, c.commentContent, (SELECT SUM(v.voteType) FROM user_thread_vote v WHERE v.threadId = t.threadId) AS Votes FROM thread t INNER JOIN comment c ON t.threadId = c.threadId INNER JOIN user u ON t.userId = u.userId WHERE t.userId = ?';
+    'SELECT t.threadId, u.userName, u.userId, u.userAvatar, c.commentContent, c.threadPost, (SELECT SUM(v.voteType) FROM user_thread_vote v WHERE v.threadId = t.threadId) AS Votes FROM thread t INNER JOIN comment c ON t.threadId = c.threadId INNER JOIN user u ON t.userId = u.userId WHERE u.userName = ?';
 
-  const [comments] = await pool.query(selectQuery, userId);
+  const [comments] = await pool.query(selectQuery, userName);
 
   return comments;
+}
+
+async function getInteractions(threadId) {
+  // SQL
+  const pool = await database.getPool();
+
+  const selectQuery =
+    'SELECT COUNT(c.threadComment) AS comments, (SELECT SUM(v.voteType) FROM user_thread_vote v WHERE v.threadId = t.threadID) AS votes FROM thread t LEFT OUTER JOIN comment c  ON t.threadId = c.threadComment WHERE t.threadId = ? GROUP BY t.threadId';
+
+  const [interacions] = await pool.query(selectQuery, threadId);
+
+  return interacions;
 }
 
 module.exports = {
@@ -113,4 +126,5 @@ module.exports = {
   getCommentById,
   getAllCommentsByPostId,
   getCommentsByUser,
+  getInteractions,
 };

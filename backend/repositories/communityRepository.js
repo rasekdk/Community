@@ -59,14 +59,45 @@ async function getAllCommunities() {
   return allComunities;
 }
 
+async function getAllCommunitiesUser(id) {
+  const pool = await database.getPool();
+  const communitiesQuery =
+    'SELECT c.comName, c.comId FROM community c INNER JOIN user_topic_follow t ON c.comTopic = t.topicId WHERE t.userId = ? ';
+  const [allCommunities] = await pool.query(communitiesQuery, id);
+
+  const followedQuery = 'SELECT * FROM  user_community_follow WHERE userId = ? AND comId = ?';
+
+  const followsQuery =
+    'SELECT COUNT(c.comId) AS follows FROM community c LEFT OUTER JOIN user_community_follow f ON  c.comId = f.comId WHERE c.comId = ? AND f.userId IS NOT null';
+
+  let communityList = await Promise.all(
+    allCommunities.map(async (community) => {
+      const [followsCommunity] = await pool.query(followsQuery, community.comId);
+      const [followedCommunity] = await pool.query(followedQuery, [id, community.comId]);
+
+      let follows = (await followsCommunity[0]) ? followsCommunity[0].follows : 0;
+      let followed = (await followedCommunity[0]) ? true : false;
+
+      return {
+        id: community.comId,
+        name: community.comName,
+        follows: follows,
+        followed: followed,
+      };
+    })
+  );
+
+  communityList.sort((a, b) => (b.follows > a.follows ? 1 : b.follows < a.follows ? -1 : 0));
+
+  return communityList;
+}
+
 // Show community by id
 async function getCommunityById(comId) {
   const pool = await database.getPool();
   const selectCom =
-    'SELECT comName, comBio, t.topicName AS mainTopic, t2.topicName AS secondTopic, comAvatar FROM community c INNER JOIN topic t ON t.topicId = c.comTopic INNER JOIN topic t2 ON t2.topicId = c.comSecTopic WHERE c.comId = ?';
+    'SELECT comId, comName, comBio, t.topicName AS mainTopic, t2.topicName AS secondTopic, comAvatar FROM community c INNER JOIN topic t ON t.topicId = c.comTopic INNER JOIN topic t2 ON t2.topicId = c.comSecTopic WHERE c.comId = ?';
   const [community] = await pool.query(selectCom, comId);
-
-  console.log(community);
 
   return community;
 }
@@ -75,7 +106,7 @@ async function getCommunityById(comId) {
 async function getCommunityByName(comName) {
   const pool = await database.getPool();
   const selectCom =
-    'SELECT comName, comBio, t.topicName AS mainTopic, t2.topicName AS secondTopic, comAvatar FROM community c INNER JOIN topic t ON t.topicId = c.comTopic INNER JOIN topic t2 ON t2.topicId = c.comSecTopic WHERE c.comName = ?';
+    'SELECT comId, comName, comBio, t.topicName AS mainTopic, t2.topicName AS secondTopic, comAvatar FROM community c INNER JOIN topic t ON t.topicId = c.comTopic INNER JOIN topic t2 ON t2.topicId = c.comSecTopic WHERE c.comName = ?';
   const [community] = await pool.query(selectCom, comName);
 
   return community;
@@ -86,7 +117,7 @@ async function getFollowedCommunities(userId) {
   // SQL
   const pool = await database.getPool();
   const selectQuery =
-    'SELECT comName, comBio, t.topicName AS mainTopic, t2.topicName AS secondTopic, comAvatar FROM community c INNER JOIN user_community_follow f ON c.comId = f.comId INNER JOIN topic t ON t.topicId = c.comTopic INNER JOIN topic t2 ON t2.topicId = c.comSecTopic WHERE userId=?';
+    'SELECT c.comId, comName, comBio, t.topicName AS mainTopic, t2.topicName AS secondTopic, comAvatar FROM community c INNER JOIN user_community_follow f ON c.comId = f.comId INNER JOIN topic t ON t.topicId = c.comTopic INNER JOIN topic t2 ON t2.topicId = c.comSecTopic WHERE userId=?';
   const communities = await pool.query(selectQuery, userId);
 
   // Response
@@ -144,6 +175,7 @@ async function checkFollow(comId, userId) {
 module.exports = {
   createCommunity,
   getAllCommunities,
+  getAllCommunitiesUser,
   getCommunityById,
   getCommunityByName,
   getFollowedCommunities,

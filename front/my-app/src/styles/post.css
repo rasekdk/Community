@@ -1,0 +1,95 @@
+/* POST BLOCK */
+
+/* Main Box */
+.post {
+  background-color: var(--sec-background);
+  border-radius: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.post-block {
+  background-color: var(--main-background);
+  text-align: left;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+/* Title */
+.post header {
+  padding: 0 0.5rem 0.5rem;
+}
+
+.post-info {
+  display: flex;
+  align-items: center;
+  padding-bottom: 0.5rem;
+}
+
+.post-info img {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+}
+
+.post-creation {
+  color: var(--unfocus-color);
+  padding-left: 1rem;
+  font-size: 0.75rem;
+}
+
+.post h2 {
+  color: var(--text-color);
+  font-weight: normal;
+}
+
+.post .text {
+  padding: 0 0.5rem;
+}
+
+.post main p {
+  color: var(--text-color);
+}
+
+.post main img {
+  max-width: 100%;
+  height: auto;
+}
+
+.post-actions {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  position: relative;
+  color: var(--text-color);
+}
+
+.post-single-action {
+  display: flex;
+  position: relative;
+}
+
+.comment.div-holder,
+.sub-comment.div-holder {
+  padding: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.comment .post-actions {
+  padding: 0.5rem 0 0;
+}
+
+.post-actions .post-single-action:not(.vote-block) svg {
+  margin-right: 0.5rem;
+}
+
+.div-holder > .div-holder {
+  background-color: var(--sec-background);
+}
+
+/* .post-single-action:not(.vote-block):hover {
+  color: var(--main-color);
+  cursor: pointer;
+}
+.post-single-action:not(.vote-block):hover svg {
+  fill: var(--main-color);
+} */

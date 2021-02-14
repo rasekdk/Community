@@ -1,0 +1,29 @@
+/* Color */
+
+html.dark {
+  --dark-background: #1f1f1f;
+  --dark-background-opacity: #1f1f1f86;
+  --main-background: #313131;
+  --sec-background: #282828;
+  --text-color: #c4c4c4;
+  --unfocus-color: #c4c4c483;
+  --grey-color: #747474;
+}
+
+html.purple {
+  --main-color: darkorchid;
+  --main-color-opacity: #9932cc25;
+  --gradient-color: linear-gradient(90deg, #9462ff, var(--main-color));
+}
+
+html.green {
+  --main-color: #00ff0a;
+  --main-color-opacity: #00ff0a25;
+  --gradient-color: linear-gradient(90deg, #ccff00, #00ff0a);
+}
+
+html.orange {
+  --main-color: #ff6b00;
+  --main-color-opacity: #ff6b0025;
+  --gradient-color: linear-gradient(90deg, #f59678, #ff6b00);
+}

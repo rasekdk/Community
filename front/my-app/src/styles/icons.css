@@ -1,0 +1,75 @@
+.small,
+.small svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.medium,
+.medium svg {
+  width: 2rem;
+  height: 2rem;
+}
+
+.large,
+.large svg {
+  width: 3rem;
+  height: 3rem;
+}
+
+.ico {
+  fill: var(--grey-color);
+}
+/* .ico:hover {
+  fill: var(--main-color);
+  color: var(--main-color);
+} */
+
+.icon-link {
+  display: inline-flex;
+}
+
+.logo path {
+  fill: var(--main-color);
+}
+
+.mobile-nav .icon-link {
+  padding: 0.5rem;
+}
+
+.mobile-nav .post-ico .icon-link {
+  border: 2px solid var(--main-color);
+  border-radius: 50%;
+}
+
+/* Hover */
+
+.icon-link:hover .ico {
+  fill: var(--main-color);
+}
+
+.mobile-nav .post-ico .icon-link:hover {
+  border-color: var(--text-color);
+}
+
+.ico.active {
+  fill: var(--main-color);
+}
+
+.ico.white {
+  fill: var(--text-color);
+}
+
+.ico.not-found {
+  padding: 1rem;
+  max-width: 100%;
+}
+
+.ico.back {
+  margin-left: 0.5rem;
+}
+
+.ico.options {
+  position: absolute;
+  top: 0.5rem;
+  right: 1rem;
+}

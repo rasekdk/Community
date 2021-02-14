@@ -14,6 +14,16 @@ async function followTopic(topic, user) {
   return true;
 }
 
+async function unfollowTopic(topic, user) {
+  // SQL
+  const pool = await database.getPool();
+  const follow = 'DELETE FROM user_topic_follow WHERE topicId = ? AND userId =?';
+  await pool.query(follow, [topic, user]);
+
+  // Response
+  return true;
+}
+
 // Communities
 async function followCommunity(com, user) {
   // SQL
@@ -25,7 +35,19 @@ async function followCommunity(com, user) {
   return true;
 }
 
+async function unfollowCommunity(com, user) {
+  // SQL
+  const pool = await database.getPool();
+  const follow = 'DELETE FROM user_community_follow WHERE comId = ? AND userId =?';
+  await pool.query(follow, [com, user]);
+
+  // Response
+  return true;
+}
+
 module.exports = {
   followTopic,
+  unfollowTopic,
   followCommunity,
+  unfollowCommunity,
 };

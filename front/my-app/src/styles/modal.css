@@ -1,0 +1,293 @@
+.modal-full {
+  position: fixed;
+  z-index: 9999;
+  bottom: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100vh;
+  background-color: var(--dark-background-opacity);
+}
+
+.modal {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  bottom: 0px;
+  left: 0px;
+  z-index: 99999;
+  background-color: var(--main-background);
+  padding: 1rem;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+.modal-main {
+  height: 60vh;
+}
+
+.modal .post-form {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal .create-post {
+  border-radius: 0;
+  padding: 1rem 0.5rem 0.5rem;
+}
+
+.modal .create-post::-webkit-input-placeholder {
+  color: var(--unfocus-color);
+}
+
+.modal input[type='text'],
+.modal textarea {
+  background-color: transparent;
+  min-height: auto;
+}
+
+.modal form {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.modal textarea {
+  flex-grow: 1;
+  resize: none;
+}
+
+.modal input[type='text']:not(:last-child),
+.modal textarea:not(:nth-last-child(2)) {
+  border-bottom: 2px solid var(--text-color);
+}
+
+.modal-selector.open {
+  height: 60vh;
+  animation-name: swipeUp-modal;
+  animation-duration: 0.5s;
+}
+
+.modal-selector.close {
+  height: 0;
+  animation-name: swipeDown-modal;
+  animation-duration: 0.5s;
+  padding: 0;
+}
+
+.modal-main.open {
+  animation-name: swipeUp-modal-main;
+  animation-duration: 0.5s;
+}
+.modal-main.close {
+  height: 0;
+  animation-name: swipeDown-modal-main;
+  animation-duration: 0.5s;
+  padding: 0;
+}
+
+.modal.modal-comment.open {
+  animation-name: swipeUp-modal-comment;
+  animation-duration: 0.5s;
+}
+
+.modal-comment.close {
+  height: 0;
+  animation-name: swipeDown-modal-comment;
+  animation-duration: 0.5s;
+  padding: 0;
+}
+
+.modal-full.open {
+  animation: opacity-modal-full-in 0.5s;
+}
+.modal-full.close {
+  animation: opacity-modal-full-out 0.5s;
+}
+
+@keyframes opacity-modal-full-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes opacity-modal-full-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes swipeUp-modal-comment {
+  from {
+    height: 0;
+  }
+  to {
+    height: 30vh;
+  }
+}
+
+@keyframes swipeDown-modal-comment {
+  from {
+    height: 30vh;
+  }
+  to {
+    height: 0;
+  }
+}
+
+@keyframes swipeUp-modal-main {
+  from {
+    height: 0;
+  }
+  to {
+    height: 60vh;
+  }
+}
+@keyframes swipeDown-modal-main {
+  from {
+    height: 60vh;
+  }
+  to {
+    height: 0vh;
+  }
+}
+
+.modal-selector {
+  height: 100%;
+  overflow: auto;
+}
+
+.community-block {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: bold;
+  margin-top: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--grey-color);
+  z-index: 99;
+}
+
+.community-block img {
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}
+.community-block img,
+.community-block p {
+  z-index: -1;
+}
+
+.modal header {
+  display: flex;
+  position: relative;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.modal header h1,
+.modal header p {
+  text-align: center;
+  left: 0;
+  right: 0;
+  position: absolute;
+}
+
+.modal header .align {
+  margin-right: 1rem;
+}
+
+.modal .community-selector .unfocus {
+  padding-left: 0.5rem;
+}
+
+.modal .community-selector svg.logo,
+.modal .community-selector img {
+  background-color: var(--dark-background);
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}
+
+.modal .community-selector svg.logo {
+  padding: 0.25rem;
+}
+
+.modal .send-post {
+  color: var(--main-color);
+  background-color: transparent;
+  width: auto;
+  display: inline;
+  border: 0;
+  font-size: 1rem;
+  font-weight: 400;
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+}
+
+.modal .send-post.disable {
+  color: var(--unfocus-color);
+}
+
+.modal.modal-comment {
+  height: 30vh;
+}
+
+.user-page .modal {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-page .modal > main {
+  overflow: scroll;
+}
+
+.avatar-grid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  overflow: scroll;
+  justify-content: space-around;
+}
+
+.avatar-selector {
+  width: 10rem;
+  height: 10rem;
+  overflow: hidden;
+  margin: 0.5rem 0;
+}
+
+.avatar-selector img {
+  width: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.more-options {
+  right: 0;
+  position: absolute;
+  background: var(--dark-background);
+  list-style: none;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  top: 1rem;
+  z-index: 9;
+}
+
+.modal-full.options {
+  background-color: transparent;
+  z-index: 1;
+}
+
+.more-options .option {
+  display: flex;
+}
+
+.more-options .option svg {
+  display: inline;
+}

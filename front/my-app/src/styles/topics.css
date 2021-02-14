@@ -1,0 +1,60 @@
+.topic-list {
+  height: calc(100vh - 8rem);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.topic-list h1,
+.topic-list > p {
+  text-align: center;
+}
+
+.topic-list p {
+  color: var(--unfocus-color);
+}
+
+.topic {
+  background-color: var(--dark-background);
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  width: 100%;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.topic h2 {
+  font-size: 1.25rem;
+  font-weight: 400;
+}
+
+.topic svg {
+  justify-items: left;
+}
+
+.topic button {
+  align-self: center;
+  width: 6rem;
+  text-align: center;
+  height: 2rem;
+  border-radius: 0.5rem;
+  border: 0;
+  background: var(--gradient-color);
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.topic button.followed {
+  background: var(--main-background);
+  color: var(--text-color);
+}
+
+.topic p {
+  font-size: 0.75rem;
+}
+
+.topic > div {
+  flex-grow: 2;
+  padding-left: 0.5rem;
+}

@@ -1,9 +1,11 @@
 'use strict';
 // Require
 const Joi = require('joi');
+const jwt = require('jsonwebtoken');
+const { JWT_SECRET } = process.env;
 
 // Imports
-const { postRepository } = require('../repositories');
+const { postRepository, commentRepository } = require('../repositories');
 // const { getPostById } = require('../repositories/postRepository');
 
 // Post
@@ -30,7 +32,7 @@ async function createPost(req, res) {
     const createdPost = await postRepository.createPost(tokenUserId, postData);
 
     // SQL response data
-    const [post] = await postRepository.getPostById(createdPost);
+    const post = await postRepository.getPostById(createdPost);
 
     // Response
     res.send(post);
@@ -59,7 +61,7 @@ async function getPost(req, res) {
 
     if (!post) {
       const error = new Error('La url a la que quieres acceder no se encuentra');
-      error.code = 404;
+      error.status = 404;
 
       throw error;
     }
@@ -72,7 +74,69 @@ async function getPost(req, res) {
       err.status = 400;
     }
     res.status(err.status || 500);
-    res.send({ error: err.message });
+    res.send({ error: err.message, status: err.status });
+  }
+}
+
+async function getPostByUser(req, res) {
+  try {
+    // Params
+    const userId = req.params.name;
+
+    // Validate
+    const userIdSchema = Joi.string().required();
+    await userIdSchema.validateAsync(userId);
+
+    // SQL query
+    const post = await postRepository.getPostsByUser(userId);
+
+    if (!post) {
+      const error = new Error('La url a la que quieres acceder no se encuentra');
+      error.status = 404;
+
+      throw error;
+    }
+
+    // Response
+    res.send(post);
+  } catch (err) {
+    console.log(err);
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    res.status(err.status || 500);
+    res.send({ error: err.message, status: err.status });
+  }
+}
+
+async function getComments(req, res) {
+  try {
+    // Params
+    const threadId = req.params.threadId;
+
+    // Validate
+    const threadIdSchema = Joi.number().positive().required();
+    await threadIdSchema.validateAsync(threadId);
+
+    // SQL query
+    const comments = await postRepository.getPostComments(threadId);
+
+    if (!comments) {
+      const error = new Error('La url a la que quieres acceder no se encuentra');
+      error.status = 404;
+
+      throw error;
+    }
+
+    // Response
+    res.send(comments);
+  } catch (err) {
+    console.log(err);
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    res.status(err.status || 500);
+    res.send({ error: err.message, status: err.status });
   }
 }
 
@@ -117,9 +181,62 @@ async function updatePost(req, res) {
   }
 }
 
+// Home
+async function getHomePosts(req, res) {
+  try {
+    const token = req.headers.auth;
+    const decodedToken = jwt.verify(token, JWT_SECRET);
+    const { id } = decodedToken;
+
+    const post = await postRepository.getHomePosts(id);
+
+    res.send(post);
+  } catch (err) {
+    console.log(err);
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
+
+async function getNewPosts(req, res) {
+  try {
+    const post = await postRepository.getNewPosts();
+    res.send(post);
+  } catch (err) {
+    console.log(err);
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
+
+async function getPopularPosts(req, res) {
+  try {
+    const post = await postRepository.getPopularPosts();
+    res.send(post);
+  } catch (err) {
+    console.log(err);
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
+
 module.exports = {
   createPost,
   getPost,
+  getPostByUser,
+  getComments,
   updatePost,
   getHomePosts,
+  getHomePosts,
+  getNewPosts,
+  getPopularPosts,
 };

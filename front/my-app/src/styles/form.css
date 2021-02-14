@@ -1,0 +1,122 @@
+/* Form */
+
+.error-message:not(.custom) {
+  display: inline;
+  padding-left: 0.5rem;
+  font-weight: normal;
+  font-size: 0.75rem;
+}
+
+.error-message.custom {
+  text-align: center;
+  font-weight: bold;
+}
+
+.register-page,
+.login-page {
+  text-align: center;
+}
+
+form h1 {
+  text-align: center;
+  margin: 0.5rem 0;
+}
+
+fieldset {
+  outline: none;
+  border: 0;
+  padding: 0.5rem 0;
+}
+
+fieldset:last-of-type {
+  padding-bottom: 1rem;
+}
+
+label,
+input {
+  display: block;
+  width: 100%;
+}
+
+label {
+  font-weight: bold;
+  color: var(--unfocus-color);
+}
+
+form input[type='text'],
+form input[type='email'],
+form input[type='password'] {
+  line-height: 1rem;
+  background-color: var(--grey-color);
+  outline: none;
+  border: 0;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+}
+
+form p {
+  color: var(--main-color);
+  font-size: 1rem;
+  padding-top: 0.5rem;
+}
+
+.post-form input,
+.post-form div.unfocus,
+.comment-form input[type='text'],
+.comment-form div.unfocus {
+  background-color: transparent;
+  border: 0;
+  font-size: 1.25rem;
+  padding: 0.5rem 0;
+  color: var(--text-color);
+}
+
+.post-form div:not(:last-child) input,
+.post-form div.unfocus {
+  border-bottom: 2px solid var(--unfocus-color);
+}
+
+.post-form input:focus {
+  border: 0;
+  outline: 0;
+}
+
+.post-form div:not(:last-child) input:focus {
+  border-bottom: 2px solid var(--text-color);
+}
+
+.post-form div.unfocus {
+  color: var(--unfocus-color);
+}
+
+.community-selector > div {
+  display: flex;
+  align-items: center;
+}
+
+.community-selector svg:not(.logo) {
+  margin-left: auto;
+}
+
+textarea {
+  width: 100%;
+  min-height: 100%;
+}
+
+textarea.create-post {
+  background-color: transparent;
+  border: 0;
+  resize: vertical;
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.25rem;
+  color: var(--text-color);
+}
+
+textarea:focus {
+  border: 0;
+  outline: 0;
+}
+
+.fileInput {
+  display: none;
+}

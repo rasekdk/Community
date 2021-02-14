@@ -1,6 +1,7 @@
 'use strict';
 // Require
 const Joi = require('joi');
+const { threadController } = require('./threadController');
 
 // Imports
 const { postRepository, commentRepository, userRepository } = require('../repositories');
@@ -44,10 +45,11 @@ async function createComment(req, res) {
     // New comment
     await commentRepository.createComment(tokenUserId, threadId, commentContent);
 
-    // Show all the thread
-    const [thread] = await postRepository.getThread(threadId);
+    const post = await postRepository.getPostById(threadId);
 
-    res.send(thread);
+    const comments = await postRepository.getPostComments(threadId);
+
+    res.send({ post: post, comments: comments });
   } catch (err) {
     console.log(err);
     if (err.name === 'ValidationError') {
@@ -94,12 +96,14 @@ async function createSubComment(req, res) {
     }
 
     // New comment
-    const newComment = await commentRepository.createSubComment(tokenUserId, threadId, commentId, commentContent);
+    await commentRepository.createSubComment(tokenUserId, threadId, commentId, commentContent);
 
     // Show all the thread
-    const [thread] = await postRepository.getThread(threadId);
+    const post = await postRepository.getPostById(threadId);
 
-    res.send(thread);
+    const comments = await postRepository.getPostComments(threadId);
+
+    res.send({ post: post, comments: comments });
   } catch (err) {
     console.log(err);
     if (err.name === 'ValidationError') {
@@ -122,6 +126,37 @@ async function getComment(req, res) {
 
     // SQL query
     const [comment] = await commentRepository.getCommentById(threadId);
+
+    if (!comment) {
+      const error = new Error('La url a la que quieres acceder no se encuentra');
+      error.code = 404;
+
+      throw error;
+    }
+
+    // Response
+    res.send(comment);
+  } catch (err) {
+    console.log(err);
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
+
+async function getCommentsByUser(req, res) {
+  try {
+    // Params
+    const userName = req.params.name;
+
+    // Validate
+    const userNameSchema = Joi.string().required();
+    await userNameSchema.validateAsync(userName);
+
+    // SQL query
+    const comment = await commentRepository.getCommentsByUser(userName);
 
     if (!comment) {
       const error = new Error('La url a la que quieres acceder no se encuentra');
@@ -199,5 +234,6 @@ module.exports = {
   createComment,
   createSubComment,
   getComment,
+  getCommentsByUser,
   updateComment,
 };

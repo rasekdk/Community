@@ -1,0 +1,50 @@
+.user-page > header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.user-page .user-header {
+  background-color: var(--sec-background);
+  padding: 1rem;
+}
+
+.user-page .user-header > * {
+  margin: 0.5rem 0;
+}
+
+.user-page .sub-header-home {
+  top: 0;
+  z-index: 0;
+}
+
+.user-page .main-section .post:first-child,
+.user-page .main-section .comment:first-child,
+.user-page .main-section {
+  margin-top: 0;
+}
+
+.user-page .main-section {
+  top: 2.5rem;
+  position: relative;
+  padding-bottom: 2rem;
+}
+
+.about > .div-holder {
+  margin-top: 0.5rem;
+}
+
+.columns {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.columns h2 {
+  font-size: 1rem;
+  font-weight: normal;
+}
+
+.columns .div-holder {
+  margin: 0;
+  padding: 0.5rem;
+}

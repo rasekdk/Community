@@ -5,7 +5,7 @@ const { JWT_SECRET } = process.env;
 
 function validateAuth(req, res, next) {
   try {
-    const token = req.headers.authorization;
+    const token = req.headers.auth;
     const decodedToken = jwt.verify(token, JWT_SECRET);
     const { id, name, role } = decodedToken;
 
@@ -18,9 +18,24 @@ function validateAuth(req, res, next) {
   }
 }
 
+function checkIfNeedValidation(req, res, next) {
+  try {
+    const token = req.headers.auth;
+
+    if (token) {
+      validateAuth(req, res, next);
+    }
+    next();
+  } catch (err) {
+    console.log(err);
+    res.status(409);
+    res.send(err.message);
+  }
+}
+
 function validateAdmin(req, res, next) {
   try {
-    const token = req.headers.authorization;
+    const token = req.headers.auth;
     const decodedToken = jwt.verify(token, JWT_SECRET);
     const { id, name, role } = decodedToken;
 
@@ -41,4 +56,8 @@ function validateAdmin(req, res, next) {
   }
 }
 
-module.exports = { validateAuth, validateAdmin };
+module.exports = {
+  validateAuth,
+  validateAdmin,
+  checkIfNeedValidation,
+};

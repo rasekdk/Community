@@ -30,11 +30,35 @@ async function getPostById(threadId) {
   // SQL
   const pool = await database.getPool();
   const selectQuery =
-    'SELECT p.threadId, u.userName, p.postTitle, p.postContent, p.postType, t.threadDate,  COUNT(c.commentId) AS comentarios,   cm.comName, cm.comId, up.updateDate, SUM(v.voteType) AS votos FROM post p   INNER JOIN thread t  ON p.threadId = t.threadId   INNER JOIN community cm  ON p.comId = cm.comId INNER JOIN user u ON t.userId = u.userId LEFT OUTER JOIN thread_update up   ON p.threadId = up.threadId  LEFT OUTER JOIN comment c  ON p.threadId = c.threadPost  LEFT OUTER JOIN comment c2  ON c.threadId = c2.threadComment LEFT OUTER JOIN user_thread_vote v ON p.threadId = v.threadId  WHERE p.threadId = ? GROUP BY t.threadId';
+    'SELECT p.threadId, u.userName, u.userId, u.userAvatar, p.postTitle, p.postContent, p.postType, t.threadDate, COUNT(c.threadId) AS comments,   cm.comName, cm.comId, up.updateDate, (SELECT SUM(v.voteType) FROM user_thread_vote v WHERE v.threadId = p.threadID) AS votes, (SELECT v2.voteType FROM user_thread_vote v2 WHERE p.threadId =  v2.threadId AND v2.userId = 154) AS voted FROM post p INNER JOIN thread t  ON p.threadId = t.threadId INNER JOIN community cm  ON p.comId = cm.comId JOIN user u ON t.userId = u.userId LEFT OUTER JOIN thread_update up ON p.threadId = up.threadId LEFT OUTER JOIN comment c  ON p.threadId = c.threadPost LEFT OUTER JOIN comment c2 ON c.threadId = c2.threadComment WHERE p.threadId = ? GROUP BY p.threadId';
   const [post] = await pool.query(selectQuery, threadId);
 
   // Respone
   return post;
+}
+
+async function getPostComments(threadId) {
+  let data = [];
+  // console.log(data);
+
+  const mainComments = await commentRepository.getAllCommentsByPostId(threadId);
+
+  data.comments = [];
+
+  for (let comment in mainComments) {
+    if (mainComments[comment].threadComment === null) {
+      data.push(mainComments[comment]);
+    } else {
+      const index = data.findIndex((i) => i.threadId === mainComments[comment].threadComment);
+
+      if (!data[index].comment) {
+        data[index].comment = [];
+      }
+      data[index].comment.push(mainComments[comment]);
+    }
+  }
+
+  return data;
 }
 
 // Update post
@@ -77,28 +101,25 @@ async function updatePost(userId, threadId, updateData) {
 
 // Get full thread (post + comments + subcommnets)
 async function getThread(threadId) {
-  // SQL
-  const pool = await database.getPool();
-  const selectQuery =
-    'SELECT t.threadId, p.postId, u.userName, p.postTitle, p.postContent, cm.comName, p.postType, t.threadDate, SUM(v.voteType) AS votes, (SELECT COUNT(threadPost) FROM comment  WHERE threadPost = ?) AS commetCount FROM post p LEFT OUTER JOIN thread_update up ON p.threadId = up.threadId   INNER JOIN thread t  ON p.threadId = t.threadId  INNER JOIN community cm ON p.comId = cm.comId INNER JOIN user u ON t.userId = u.userId LEFT OUTER JOIN user_thread_vote v ON p.threadId = v.threadId WHERE p.threadId = ? GROUP BY v.threadId';
-  let [data] = await pool.query(selectQuery, [threadId, threadId]);
+  let data = [];
+  // console.log(data);
 
   const mainComments = await commentRepository.getAllCommentsByPostId(threadId);
 
-  data[0].comments = [];
-
-  let jsonData = data[0].comments;
+  data.comments = [];
 
   for (let comment in mainComments) {
     if (mainComments[comment].threadComment === null) {
-      jsonData.push(mainComments[comment]);
+      data.push(mainComments[comment]);
     } else {
-      const index = jsonData.findIndex((i) => i.threadId === mainComments[comment].threadComment);
+      const index = data.findIndex((i) => i);
 
-      if (!jsonData[index].comment) {
-        jsonData[index].comment = [];
+      console.log(index);
+
+      if (!data[index].comment) {
+        data[index].comment = [];
       }
-      jsonData[index].comment.push(mainComments[comment]);
+      data[index].comment.push(mainComments[comment]);
     }
   }
 
@@ -132,16 +153,66 @@ async function deleteThread(userId, threadId) {
   await pool.query(deleteQuery, threadId);
 }
 
-async function getPostsByUser(userId) {
+async function getPostsByUser(userName) {
   // SQL
   const pool = await database.getPool();
 
   const selectQuery =
-    'SELECT t.threadId, u.userName, p.postTitle, p.postContent,  (SELECT SUM(v.voteType) FROM user_thread_vote v WHERE v.threadId = t.threadId)  AS Votes, (SELECT COUNT(c.commentId) FROM comment c WHERE c.threadPost = t.threadId) AS Comments FROM thread t INNER JOIN post p  ON t.threadId = p.threadId INNER JOIN user u ON t.userId = u.userId WHERE t.userId = ?';
+    'SELECT t.threadId, u.userName, u.userId, u.userAvatar, p.postTitle, p.postContent, p.postType,  (SELECT SUM(v.voteType) FROM user_thread_vote v WHERE v.threadId = t.threadId)  AS Votes, (SELECT COUNT(c.commentId) FROM comment c WHERE c.threadPost = t.threadId) AS comments FROM thread t INNER JOIN post p  ON t.threadId = p.threadId INNER JOIN user u ON t.userId = u.userId WHERE u.userName = ? ORDER BY t.threadDate DESC';
 
-  const [comments] = await pool.query(selectQuery, userId);
+  const [comments] = await pool.query(selectQuery, userName);
 
   return comments;
+}
+
+async function getHomePosts(user) {
+  // SQL
+  const pool = await database.getPool();
+
+  const comQuery = 'SELECT comId FROM user_community_follow WHERE userId = ?';
+  const [communities] = await pool.query(comQuery, user);
+
+  if (!communities) {
+    const error = new Error('No sigues a ninguna communidad aun');
+    error.code = 409;
+    throw error;
+  }
+
+  const postsQuery =
+    'SELECT p.threadId, p.postTitle, p.postContent, p.postType, cm.comName, u.userName, u.userId, u.userAvatar, (SELECT COUNT(c.threadPost) FROM comment c WHERE c.threadPost = p.threadId) as comments, (SELECT SUM(v.voteType) FROM user_thread_vote v WHERE v.threadId = p.threadId) AS votes, (SELECT voteType FROM user_thread_vote v2 WHERE v2.threadId = p.threadId AND v2.userId = f.userId) AS voted FROM post p INNER JOIN thread t ON p.threadId = t.threadId INNER JOIN user u ON t.userId = u.userId INNER JOIN community cm ON cm.comId = p.comId INNER JOIN user_community_follow f ON f.comId = cm.comId WHERE f.userId = ?';
+  const [post] = await pool.query(postsQuery, user);
+
+  return post;
+}
+
+async function getNewPosts() {
+  // SQL
+  const pool = await database.getPool();
+  const selectQuery =
+    'SELECT p.threadId, u.userName, u.userAvatar, u.userId, p.postTitle, p.postContent, p.postType, t.threadDate, (SELECT COUNT(c.threadPost) FROM comment c WHERE c.threadPost = p.threadId) as comments, cm.comName, cm.comId, up.updateDate, (SELECT SUM(v.voteType) FROM user_thread_vote v WHERE v.threadId = p.threadId) AS votes FROM post p INNER JOIN thread t  ON p.threadId = t.threadId INNER JOIN community cm ON p.comId = cm.comId INNER JOIN user u ON t.userId = u.userId LEFT OUTER JOIN thread_update up   ON p.threadId = up.threadId  LEFT OUTER JOIN user_thread_vote v ON p.threadId = v.threadId GROUP BY t.threadId ORDER BY t.threadDate DESC';
+  const [post] = await pool.query(selectQuery);
+
+  return post;
+}
+
+async function getPopularPosts() {
+  // SQL
+  const pool = await database.getPool();
+  const selectQuery =
+    'SELECT p.threadId, u.userName, u.userAvatar, u.userId, p.postTitle, p.postContent, p.postType, t.threadDate, (SELECT COUNT(c.threadPost) FROM comment c WHERE c.threadPost = p.threadId) as comments, cm.comName, cm.comId, up.updateDate, (SELECT SUM(v.voteType) FROM user_thread_vote v WHERE v.threadId = p.threadId) AS votes FROM post p INNER JOIN thread t  ON p.threadId = t.threadId INNER JOIN community cm ON p.comId = cm.comId INNER JOIN user u ON t.userId = u.userId LEFT OUTER JOIN thread_update up   ON p.threadId = up.threadId  LEFT OUTER JOIN user_thread_vote v ON p.threadId = v.threadId GROUP BY t.threadId ORDER BY votes DESC';
+  const [post] = await pool.query(selectQuery);
+
+  return post;
+}
+
+async function getInteractions(threadId) {
+  // SQL
+  const pool = await database.getPool();
+  const selectQuery =
+    'SELECT COUNT(c.threadId) AS comments,(SELECT SUM(v.voteType) FROM user_thread_vote v WHERE v.threadId = t.threadID) AS votes FROM thread t LEFT OUTER JOIN comment c  ON t.threadId = c.threadPost WHERE t.threadId = ? GROUP BY t.threadId';
+  const [interactions] = await pool.query(selectQuery, threadId);
+
+  return interactions;
 }
 
 module.exports = {
@@ -149,6 +220,11 @@ module.exports = {
   getPostById,
   updatePost,
   getThread,
+  getPostComments,
   deleteThread,
   getPostsByUser,
+  getHomePosts,
+  getNewPosts,
+  getPopularPosts,
+  getInteractions,
 };

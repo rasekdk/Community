@@ -1,0 +1,41 @@
+/* Links */
+
+a {
+  text-decoration: none;
+  color: var(--main-color);
+}
+
+a.link {
+  color: var(--unfocus-color);
+  font-weight: normal;
+  text-decoration: none;
+}
+
+a.link:hover {
+  color: var(--main-color);
+}
+
+a.community-link {
+  color: var(--text-color);
+}
+
+.access-link {
+  padding: 1rem;
+  text-align: center;
+}
+.access-link a {
+  font-weight: bold;
+  color: var(--unfocus-color);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.unfocus-text {
+  color: var(--unfocus-color);
+}
+
+.medium-text {
+  font-size: 0.75rem;
+}

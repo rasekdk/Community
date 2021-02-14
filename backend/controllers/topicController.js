@@ -1,13 +1,12 @@
 'use strict';
-
 // Require
 const Joi = require('joi');
-const { topicController } = require('.');
+const jwt = require('jsonwebtoken');
+const { JWT_SECRET } = process.env;
 
 // Imports
 const { topicRepository, followRepository } = require('../repositories');
 const database = require('../infrastructure/database');
-const { func } = require('joi');
 
 // Create  topic
 async function createTopic(req, res) {
@@ -40,12 +39,34 @@ async function createTopic(req, res) {
 // Get topics
 async function getTopics(req, res) {
   try {
-    const pool = database.getPool();
-    const selectQuery = 'SELECT topicName FROM topic';
-    const [topics] = pool.query(selectQuery);
+    const token = req.headers.auth;
 
-    console.log(topics);
+    let topics;
+    if (!token) {
+      topics = await topicRepository.getAllTopics();
+    } else {
+      const decodedToken = jwt.verify(token, JWT_SECRET);
+      const { id } = decodedToken;
+      topics = await topicRepository.getAllTopicsUser(id);
+    }
+
     res.send(topics);
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    console.log(err);
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
+
+async function getTopicById(req, res) {
+  try {
+    const id = req.params.id;
+    const [topic] = await topicRepository.getTopicById(id);
+
+    res.send(topic);
   } catch (err) {
     if (err.name === 'ValidationError') {
       err.status = 400;
@@ -77,15 +98,12 @@ async function followTopic(req, res) {
     const follow = await topicRepository.checkFollow(topicId, userTokenId);
 
     if (follow[0]) {
-      const error = new Error('Ya sigues el topic');
-      error.code = 409;
-
-      throw error;
+      await followRepository.unfollowTopic(topicId, userTokenId);
+      res.send(await topicRepository.getAllTopicsUser(userTokenId));
+    } else {
+      await followRepository.followTopic(topicId, userTokenId);
+      res.send(await topicRepository.getAllTopicsUser(userTokenId));
     }
-
-    await followRepository.followTopic(topicId, userTokenId);
-
-    res.send(`Has seguido el topic ${topicId}`);
   } catch (err) {
     if (err.name === 'ValidationError') {
       err.status = 400;
@@ -130,9 +148,31 @@ async function deleteTopic(req, res) {
   }
 }
 
+async function getTopicImages(req, res) {
+  try {
+    const token = req.headers.auth;
+
+    const decodedToken = jwt.verify(token, JWT_SECRET);
+    const { id } = decodedToken;
+
+    const avatars = await topicRepository.getTopicImages(id);
+
+    res.send(avatars);
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    console.log(err);
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
+
 module.exports = {
   createTopic,
   getTopics,
+  getTopicById,
   followTopic,
   deleteTopic,
+  getTopicImages,
 };

@@ -4,6 +4,7 @@ const commentRepository = require('./commentRepository');
 const postRepository = require('./postRepository');
 const communityRepository = require('./communityRepository');
 const topicRepository = require('./topicRepository');
+const updateRepository = require('./updateRepository');
 const database = require('../infrastructure/database');
 
 // User
@@ -49,7 +50,7 @@ async function getUserPage(name) {
 
   const json = user[0];
 
-  const userId = json.userId;
+  const userName = json.userName;
 
   json.posts = [];
   json.comments = [];
@@ -57,14 +58,14 @@ async function getUserPage(name) {
   json.followCommunities = [];
   json.followTopics = [];
 
-  const posts = await postRepository.getPostsByUser(userId);
-  const comments = await commentRepository.getCommentsByUser(userId);
-  const createdCommunities = await communityRepository.getCreatedCommunities(userId);
-  const [followCommunities] = await communityRepository.getFollowedCommunities(userId);
-  const followTopics = await topicRepository.getFollowedTopics(userId);
+  const posts = await postRepository.getPostsByUser(userName);
+  const comments = await commentRepository.getCommentsByUser(userName);
+  const createdCommunities = await communityRepository.getCreatedCommunities(userName);
+  const [followCommunities] = await communityRepository.getFollowedCommunities(userName);
+  const followTopics = await topicRepository.getFollowedTopics(userName);
 
-  json.comments = comments;
-  json.posts = posts;
+  json.comments = comments.length;
+  json.posts = posts.length;
   json.createdCommunities = createdCommunities;
   json.followCommunities = followCommunities;
   json.followTopics = followTopics;
@@ -82,10 +83,41 @@ async function getUserById(userId) {
   return user[0];
 }
 
+// Update user
+async function updateUser(tokenUserId, userName, updateData) {
+  let data = updateData;
+
+  // Get no updated Data
+  const replaceData = await getUserByName(userName);
+
+  // Check user
+
+  if (replaceData.userId !== tokenUserId) {
+    const error = new Error('No tienes permiso para editar este usuario');
+    error.code = 403;
+    throw error;
+  }
+
+  // Replace udefinded data with no updated data
+  Object.keys(data).forEach((key) => {
+    if (data[key] === undefined) {
+      data[key] = replaceData[key];
+    }
+  });
+
+  await updateRepository.updateUser(data, replaceData.userId);
+
+  const user = await getUserPage(data.userName);
+
+  // Response
+  return user;
+}
+
 module.exports = {
   createUser,
   getUserByEmail,
   getUserByName,
   getUserById,
   getUserPage,
+  updateUser,
 };

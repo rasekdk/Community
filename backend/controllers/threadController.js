@@ -10,7 +10,11 @@ const { getPostById } = require('../repositories/postRepository');
 async function getThread(req, res) {
   try {
     const threadId = req.params.threadId;
-    const thread = await postRepository.getThread(threadId);
+
+    const threadIdSchema = Joi.number().positive().required();
+    await threadIdSchema.validateAsync(threadId);
+
+    const [thread] = await postRepository.getThread(threadId);
 
     res.send(thread);
   } catch (err) {
@@ -38,7 +42,7 @@ async function deleteThread(req, res) {
     await postRepository.deleteThread(userId, threadId);
 
     // Response
-    res.send(`El hilo ${threadId} ha sido eliminado`);
+    res.send({ message: true });
   } catch (err) {
     console.log(err);
     if (err.name === 'ValidationError') {
@@ -73,9 +77,37 @@ async function addVote(req, res) {
       voteType = -1;
     }
 
-    const createVote = await voteRepository.addVote(tokenUserId, threadId, voteType);
+    await voteRepository.addVote(tokenUserId, threadId, voteType);
 
-    res.send(createVote);
+    const votes = await voteRepository.voteCount(threadId);
+
+    res.send(votes);
+  } catch (err) {
+    console.log(err);
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
+
+async function unVote(req, res) {
+  try {
+    // Params
+    const threadId = req.params.threadId;
+    const tokenUserId = req.auth.id;
+
+    // Validate
+    const schemaId = Joi.number().required();
+
+    await schemaId.validateAsync(threadId, tokenUserId);
+
+    await voteRepository.unVote(tokenUserId, threadId);
+
+    const votes = await voteRepository.voteCount(threadId);
+
+    res.send(votes);
   } catch (err) {
     console.log(err);
     if (err.name === 'ValidationError') {
@@ -90,4 +122,5 @@ module.exports = {
   getThread,
   deleteThread,
   addVote,
+  unVote,
 };
