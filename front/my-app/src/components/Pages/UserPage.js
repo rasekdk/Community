@@ -38,16 +38,8 @@ const UserPage = ({ useModal }) => {
   };
 
   return decodedToken ? (
-    <section
-      className={`user-page have-sub-header ${showModal ? 'no-scroll' : ''}`}
-    >
-      {showModal ? (
-        <AvatarModal
-          showModal={showModal}
-          setShowModal={setShowModal}
-          setUser={setUser}
-        />
-      ) : null}
+    <section className={`user-page have-sub-header ${showModal ? 'no-scroll' : ''}`}>
+      {showModal ? <AvatarModal showModal={showModal} setShowModal={setShowModal} setUser={setUser} /> : null}
       <header className="user-header">
         {user.userAvatar === 'avatar-img' ? (
           <IconUser className="ico logo large" />
@@ -56,11 +48,7 @@ const UserPage = ({ useModal }) => {
         )}
         <Link to={`/u/${user.userName}`}>u/{user.userName}</Link>
         {decodedToken.id === user.userId ? (
-          <button
-            to={'/change-avatar'}
-            className="btn full"
-            onClick={openChangeAvatar}
-          >
+          <button to={'/change-avatar'} className="btn full" onClick={openChangeAvatar}>
             Cambiar el Avatar
           </button>
         ) : null}
@@ -90,12 +78,7 @@ const UserPage = ({ useModal }) => {
           </ul>
         </header>
         {queryParam === 'post' || !queryParam ? (
-          <PostList
-            postUrl={postUrl}
-            user={user}
-            className="main-section"
-            useModal={useModal}
-          />
+          <PostList postUrl={postUrl} user={user} className="main-section" useModal={useModal} />
         ) : queryParam === 'comments' ? (
           <CommentList commentUrl={commentUrl} user={user} />
         ) : queryParam === 'about' ? (

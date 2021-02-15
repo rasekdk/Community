@@ -89,7 +89,7 @@ async function updatePost(userId, threadId, updateData) {
 
   // Replace udefinded data with no updated data
   Object.keys(data).forEach((key) => {
-    if (data[key] === undefined) {
+    if (data[key] === undefined || data[key] === '') {
       data[key] = replaceData[key];
     }
   });

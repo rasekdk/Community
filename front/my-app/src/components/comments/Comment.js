@@ -7,7 +7,7 @@ import { useState } from 'react';
 import Options from '../actions/Options';
 import useData from '../../hooks/useData';
 
-const Comment = ({ data, setPost, setComments, onClick, user }) => {
+const Comment = ({ data, setData, setComments, onClick, user }) => {
   const [optionsOpen, setOptionsOpen] = useState(false);
 
   const timeAgo = useData(data.threadDate);
@@ -46,22 +46,16 @@ const Comment = ({ data, setPost, setComments, onClick, user }) => {
       </p>
       <div className="post-actions">
         <LikeDislike data={data} />
-        {data.threadComment === null ? <CreateComment data={data} setPost={setPost} setComments={setComments} /> : null}
+        {data.threadComment === null ? <CreateComment data={data} setPost={setData} setComments={setComments} /> : null}
 
         <div className="post-single-action">
           <IconMore className={`more ico small ${optionsOpen ? 'active' : null}`} onClick={toggleOptions} />
-          <Options
-            data={data}
-            setComments={setComments}
-            optionsOpen={optionsOpen}
-            setOptionsOpen={setOptionsOpen}
-            setData={setComments}
-          ></Options>
+          <Options data={data} setData={setData} optionsOpen={optionsOpen} setOptionsOpen={setOptionsOpen} />
         </div>
       </div>
       {data.comment
         ? data.comment.map((reply) => {
-            return <Comment key={reply.threadId} data={reply} setPost={setPost} setComments={setComments} />;
+            return <Comment key={reply.threadId} data={reply} setData={setData} setComments={setComments} />;
           })
         : null}
     </DivHolder>

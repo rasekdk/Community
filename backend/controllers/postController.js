@@ -153,10 +153,10 @@ async function updatePost(req, res) {
 
     // Validate
     const postSchema = Joi.object({
-      postTitle: Joi.string().min(4).max(50),
-      postContent: Joi.string().min(4).max(255),
-      postType: Joi.string(),
-      comId: Joi.number(),
+      postTitle: Joi.alternatives().try(Joi.string().min(4).max(50), Joi.any().allow('')),
+      postContent: Joi.alternatives().try(Joi.string().max(250), Joi.any().allow('')),
+      postType: Joi.alternatives().try(Joi.string(), Joi.any().allow('')),
+      comId: Joi.alternatives().try(Joi.number(), Joi.any().allow('')),
     });
     await postSchema.validateAsync({ postTitle, postContent, postType, comId });
 

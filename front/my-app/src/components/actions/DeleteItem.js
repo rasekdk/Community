@@ -12,9 +12,7 @@ const DeleteItem = ({ data, setData }) => {
   const history = useHistory();
   const currentUrl = location.url;
 
-  const reqUrl = !data.commentContent
-    ? `${REACT_APP_URL}${currentUrl}`
-    : `${REACT_APP_URL}/c${currentUrl}`;
+  const reqUrl = !data.commentContent ? `${REACT_APP_URL}/p${currentUrl}` : `${REACT_APP_URL}/c${currentUrl}`;
 
   const useDelete = () => {
     const deleteItem = async () => {
@@ -35,9 +33,9 @@ const DeleteItem = ({ data, setData }) => {
       });
 
       const json = await res.json();
-      location.path === '/p/:id' && !data.commentContent
-        ? history.push('/')
-        : setData(json);
+
+      console.log(json);
+      location.path === '/p/:id' && !data.commentContent ? history.push('/') : await setData(json);
     };
     deleteItem();
   };

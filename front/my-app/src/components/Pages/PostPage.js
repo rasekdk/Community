@@ -20,19 +20,13 @@ const PostPage = () => {
 
   return (
     <section className="main-section have-sub-header">
-      <Post
-        key={post.threadId}
-        id={post.threadId}
-        data={post}
-        setPost={setPost}
-        setComments={setComments}
-      />
+      <Post key={post.threadId} id={post.threadId} data={post} setData={setPost} setComments={setComments} />
       {comments.map((comment) => (
         <Comment
           key={comment.threadId}
           id={comment.threadId}
           data={comment}
-          setPost={post}
+          setData={setComments}
           setComments={setComments}
         />
       ))}

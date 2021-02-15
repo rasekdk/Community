@@ -76,11 +76,8 @@ const CreateComment = ({ data, setPost, setComments }) => {
         body: JSON.stringify(body),
       });
       const json = await res.json();
-      console.log(json);
 
-      location.path !== '/p/:id'
-        ? history.push(`/p/${json.post[0].threadId}`)
-        : setComments(json.comments);
+      location.path !== '/p/:id' ? history.push(`/p/${json.post[0].threadId}`) : setComments(json.comments);
 
       hideModal();
     } catch (err) {
@@ -96,15 +93,8 @@ const CreateComment = ({ data, setPost, setComments }) => {
       </div>
       {showCommentModal ? (
         <div>
-          <div
-            className={modal ? 'modal-full open' : 'modal-full close'}
-            onClick={hideModal}
-          />
-          <DivHolder
-            className={
-              modal ? 'modal modal-comment open' : 'modal modal-comment close'
-            }
-          >
+          <div className={modal ? 'modal-full open' : 'modal-full close'} onClick={hideModal} />
+          <DivHolder className={modal ? 'modal modal-comment open' : 'modal modal-comment close'}>
             <header>
               <IconCross className="small ico" onClick={hideModal} />
               <p>
@@ -127,12 +117,7 @@ const CreateComment = ({ data, setPost, setComments }) => {
                 {canSend ? (
                   <input type="submit" className={'send-post'} value="Enviar" />
                 ) : (
-                  <input
-                    type="submit"
-                    className={'send-post disable'}
-                    value="Enviar"
-                    disabled
-                  />
+                  <input type="submit" className={'send-post disable'} value="Enviar" disabled />
                 )}
               </form>
             </main>

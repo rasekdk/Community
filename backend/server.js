@@ -57,7 +57,7 @@ app.post('/comment/:threadId/:commentId', validateAuth, commentController.create
 app.post('/comment/:threadId', validateAuth, commentController.createComment);
 app.get('/comment/:threadId', commentController.getComment);
 app.get('/c/u/:name', commentController.getCommentsByUser);
-app.put('/comment/:threadId', validateAuth, commentController.updateComment);
+app.put('/c/:threadId', validateAuth, commentController.updateComment);
 
 // Topics
 app.post('/t', validateAdmin, topicController.createTopic);
