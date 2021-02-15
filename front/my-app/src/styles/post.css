@@ -78,7 +78,7 @@
   padding: 0.5rem 0 0;
 }
 
-.post-actions .post-single-action:not(.vote-block) svg {
+.post-single-action:not(.vote-block) svg {
   margin-right: 0.5rem;
 }
 

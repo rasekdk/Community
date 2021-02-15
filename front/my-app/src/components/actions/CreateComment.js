@@ -56,11 +56,6 @@ const CreateComment = ({ data, setPost, setComments }) => {
     }
   };
 
-  const showModal = () => {
-    setShowCommentModal(!showCommentModal);
-    setModal(!modal);
-  };
-
   const onSubmit = async (e) => {
     e.preventDefault();
     const body = {
@@ -87,7 +82,7 @@ const CreateComment = ({ data, setPost, setComments }) => {
 
   return (
     <div>
-      <div className="post-single-action" onClick={showModal}>
+      <div className="post-single-action" onClick={hideModal}>
         <IconComment className="vote comment ico small" />
         <p>{commentCount}</p>
       </div>

@@ -291,3 +291,7 @@
 .more-options .option svg {
   display: inline;
 }
+
+.more-options .option > p {
+  display: flex;
+}

@@ -28,6 +28,10 @@ app.use(bodyParser.json());
 // CORS
 app.use(cors());
 
+// static files
+const staticPath = './public';
+app.use(express.static(staticPath));
+
 // Routes
 
 app.get('/new', postController.getNewPosts);

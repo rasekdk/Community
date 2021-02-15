@@ -183,6 +183,8 @@ async function updateComment(req, res) {
     // Body
     const { commentContent } = req.body;
 
+    console.log(commentCon);
+
     // Params
     const threadId = req.params.threadId;
     const tokenUserId = req.auth.id;

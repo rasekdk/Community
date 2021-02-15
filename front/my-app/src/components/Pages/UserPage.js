@@ -82,7 +82,7 @@ const UserPage = ({ useModal }) => {
         ) : queryParam === 'comments' ? (
           <CommentList commentUrl={commentUrl} user={user} />
         ) : queryParam === 'about' ? (
-          <About data={user} />
+          <About data={user} setData={setUser} />
         ) : null}
       </section>
     </section>

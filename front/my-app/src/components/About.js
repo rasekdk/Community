@@ -1,12 +1,21 @@
 import IconMore from './icons/IconMore';
 import DivHolder from './visualComponents/DivHolder';
+import OnlyEditOptions from './actions/OnlyEditOption';
+import { useContext, useState } from 'react';
+import { AuthContext } from './providers/AuthProvider';
+import { decodeToken } from 'react-jwt';
 
-const About = ({ data }) => {
+const About = ({ data, setData }) => {
+  const [auth] = useContext(AuthContext);
+  const decodedToken = decodeToken(auth);
   const posts = data.posts;
   const comments = data.comments;
   const bio = data.userBio;
-  const useOptions = () => {
-    console.log('hola');
+
+  const [optionsOpen, setOptionsOpen] = useState();
+
+  const toggleOptions = () => {
+    setOptionsOpen(!optionsOpen);
   };
   return (
     <section className="main-section about">
@@ -23,7 +32,20 @@ const About = ({ data }) => {
       <DivHolder className="div-holder">
         <h1>Bio</h1>
         <p className="unfocus-text">{bio}</p>
-        <IconMore className="ico small options" onClick={useOptions} />
+
+        {decodedToken.id === data.userId ? (
+          <div className="post-single-action">
+            <IconMore className="ico small more" onClick={toggleOptions} />
+            <OnlyEditOptions
+              data={data}
+              setData={setData}
+              optionsOpen={optionsOpen}
+              setOptionsOpen={setOptionsOpen}
+              itemEdit={'biografía'}
+              itemBody={'userBio'}
+            />
+          </div>
+        ) : null}
       </DivHolder>
     </section>
   );
