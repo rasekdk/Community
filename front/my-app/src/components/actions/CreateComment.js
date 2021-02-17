@@ -3,7 +3,7 @@ import IconCross from '../icons/IconCross.js';
 import DivHolder from '../visualComponents/DivHolder';
 
 import { useState, useContext, useEffect } from 'react';
-import { Link, useLocation, useRouteMatch } from 'react-router-dom';
+import { Link, useRouteMatch } from 'react-router-dom';
 import { AuthContext } from '../providers/AuthProvider';
 import { useHistory } from 'react-router-dom';
 

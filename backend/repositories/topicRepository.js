@@ -89,7 +89,7 @@ async function getFollowedTopics(user) {
   // SQL
   const pool = await database.getPool();
   const follows =
-    'SELECT topicName FROM user_topic_follow f INNER JOIN  topic t ON t.topicId = f.topicId WHERE userId = ?';
+    'SELECT topicName, f.topicId FROM user_topic_follow f INNER JOIN  topic t ON t.topicId = f.topicId WHERE userId = ?';
   const [topics] = await pool.query(follows, user);
 
   // Response

@@ -9,7 +9,7 @@ const NewsPage = () => {
   return (
     <section className="main-section have-sub-header">
       {posts.map((post) => (
-        <Post data={post} setPost={setPosts} key={post.threadId} />
+        <Post data={post} setPost={setPosts} key={post.threadId} url={url} />
       ))}
     </section>
   );

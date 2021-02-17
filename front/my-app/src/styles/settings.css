@@ -1,0 +1,159 @@
+.settings-section .settings-section {
+  background-color: var(--sec-background);
+  padding-top: 0.5rem;
+}
+
+.main-section.settings-section.have-sub-header {
+  margin-top: 6rem;
+}
+
+.settings-section h3 {
+  margin-left: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+.settings-block,
+.settings-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+  background-color: var(--dark-background);
+}
+
+.settings-block {
+  justify-content: space-evenly;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+}
+
+.settings-description {
+  display: block;
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+  background-color: var(--dark-background);
+}
+
+.settings-link > div {
+  display: flex;
+  align-items: center;
+}
+
+.settings-link img,
+.settings-link svg {
+  margin-right: 0.5rem;
+}
+
+.settings-link .next {
+  position: relative;
+  right: 0.5rem;
+}
+
+.font-selector div {
+  display: block;
+  border-radius: 50%;
+  width: 0.75rem;
+  height: 0.75rem;
+  background-color: var(--main-color-opacity);
+}
+
+.font-selector div.active {
+  background-color: var(--main-color);
+}
+
+.font-selector div.selected {
+  width: 1rem;
+  height: 1rem;
+  background-color: var(--main-color);
+}
+
+.settings-block.color-block {
+  display: block;
+}
+
+.settings-block .blue {
+  fill: #1da1f2;
+  background-color: #1da1f2;
+  border-radius: 50%;
+}
+.settings-block .yellow {
+  fill: #ffad1f;
+  background-color: #ffad1f;
+  border-radius: 50%;
+}
+
+.settings-block .pink {
+  fill: #e0245e;
+  background-color: #e0245e;
+  border-radius: 50%;
+}
+.settings-block .purple {
+  fill: darkorchid;
+  background-color: darkorchid;
+  border-radius: 50%;
+}
+.settings-block .green {
+  fill: #00ff0a;
+  background-color: #00ff0a;
+  border-radius: 50%;
+}
+.settings-block .orange {
+  fill: #ff6b00;
+  background-color: #ff6b00;
+  border-radius: 50%;
+}
+
+.settings-block .active {
+  background-color: var(--sec-background);
+}
+
+.settings-block.theme {
+  padding: 1rem;
+}
+
+.theme-selector {
+  margin: 0 0.5rem;
+  display: flex;
+  height: 5rem;
+  width: 100%;
+  border-radius: 0.5rem;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid var(--main-color-opacity);
+}
+
+.theme-selector.active {
+  border: 2px solid var(--main-color);
+}
+
+.theme-selector h3 {
+  text-align: center;
+  display: block;
+  width: 100%;
+}
+
+.theme-selector svg {
+  margin-left: 1rem;
+}
+
+.theme-selector.active svg {
+  fill: var(--main-color);
+}
+
+.theme-selector.dark {
+  background-color: #313131;
+}
+
+.theme-selector.dark h3 {
+  color: #c4c4c4;
+}
+
+.theme-selector.light {
+  background-color: #e9e8e8;
+}
+
+.theme-selector.light h3 {
+  color: #1f1f1f;
+}

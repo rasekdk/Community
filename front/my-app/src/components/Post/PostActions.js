@@ -5,7 +5,7 @@ import CreateComment from '../actions/CreateComment';
 import { useState } from 'react';
 import Options from '../actions/Options.js';
 
-const PostActions = ({ data, setPost, setComments }) => {
+const PostActions = ({ data, setPost, setComments, url }) => {
   const [optionsOpen, setOptionsOpen] = useState(false);
 
   const toggleOptions = () => {
@@ -20,16 +20,8 @@ const PostActions = ({ data, setPost, setComments }) => {
         <p>Share</p>
       </div>
       <div className="post-single-action">
-        <IconMore
-          className={`more ico small ${optionsOpen ? 'active' : null}`}
-          onClick={toggleOptions}
-        />
-        <Options
-          data={data}
-          setData={setPost}
-          optionsOpen={optionsOpen}
-          setOptionsOpen={setOptionsOpen}
-        ></Options>
+        <IconMore className={`more ico small ${optionsOpen ? 'active' : null}`} onClick={toggleOptions} />
+        <Options data={data} setData={setPost} optionsOpen={optionsOpen} setOptionsOpen={setOptionsOpen} url={url} />
       </div>
     </div>
   );

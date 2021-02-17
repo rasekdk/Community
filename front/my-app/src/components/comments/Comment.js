@@ -7,8 +7,9 @@ import { useState } from 'react';
 import Options from '../actions/Options';
 import useData from '../../hooks/useData';
 
-const Comment = ({ data, setData, setComments, onClick, user }) => {
+const Comment = ({ data, setData, setComments, onClick, user, url }) => {
   const [optionsOpen, setOptionsOpen] = useState(false);
+  const { REACT_APP_URL_IMG } = process.env;
 
   const timeAgo = useData(data.threadDate);
 
@@ -23,12 +24,12 @@ const Comment = ({ data, setData, setComments, onClick, user }) => {
             user.userAvatar === 'avatar-img' ? (
               <IconUser className="ico logo small" />
             ) : (
-              <img src={user.userAvatar} alt="avatar foto" />
+              <img src={`${REACT_APP_URL_IMG}/${user.userAvatar}`} alt="avatar foto" />
             )
           ) : data.userAvatar === 'avatar-img' ? (
             <IconUser className="ico logo small" />
           ) : (
-            <img src={data.userAvatar} alt="avatar foto" />
+            <img src={`${REACT_APP_URL_IMG}/${data.userAvatar}`} alt="avatar foto" />
           )}
           <div className="post-creation">
             <p>
@@ -50,12 +51,12 @@ const Comment = ({ data, setData, setComments, onClick, user }) => {
 
         <div className="post-single-action">
           <IconMore className={`more ico small ${optionsOpen ? 'active' : null}`} onClick={toggleOptions} />
-          <Options data={data} setData={setData} optionsOpen={optionsOpen} setOptionsOpen={setOptionsOpen} />
+          <Options data={data} setData={setData} optionsOpen={optionsOpen} setOptionsOpen={setOptionsOpen} url={url} />
         </div>
       </div>
       {data.comment
         ? data.comment.map((reply) => {
-            return <Comment key={reply.threadId} data={reply} setData={setData} setComments={setComments} />;
+            return <Comment key={reply.threadId} data={reply} setData={setData} setComments={setComments} url={url} />;
           })
         : null}
     </DivHolder>

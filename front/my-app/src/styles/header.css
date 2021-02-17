@@ -42,7 +42,8 @@ header img {
 
 /* SUB HEADER */
 .sub-header-home,
-.sub-header-back {
+.sub-header-back,
+.sub-header-modal {
   position: fixed;
   background: var(--main-background);
   width: 100%;
@@ -52,8 +53,13 @@ header img {
   height: 2rem;
 }
 
+.sub-header-modal {
+  position: inherit;
+}
+
 .sub-header-home ul,
-.sub-header-back ul {
+.sub-header-back ul,
+.sub-header-modal ul {
   display: flex;
   justify-content: space-around;
   list-style: none;
@@ -62,6 +68,7 @@ header img {
 }
 
 .sub-header-home ul li::after,
+.sub-header-modal ul li::after,
 .sub-header-back ul li::after {
   content: '';
   height: 2px;
@@ -75,11 +82,13 @@ header img {
 }
 
 .sub-header-home ul li.active::after,
+.sub-header-modal ul li.active::after,
 .sub-header-back ul li.active::after {
   width: 100%;
 }
 
 .sub-header-home ul li a,
+.sub-header-modal ul li,
 .sub-header-back ul li a {
   line-height: 2rem;
 }

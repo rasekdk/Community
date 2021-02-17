@@ -11,13 +11,14 @@ import MenuLink from '../header/MenuLink';
 import CommentList from '../comments/CommentList';
 import About from '../About';
 import AvatarModal from '../UserProfile/AvatarModal';
+import UserHeader from '../UserProfile/UserHeader';
 
 const UserPage = ({ useModal }) => {
   const [auth] = useContext(AuthContext);
 
   const location = useLocation();
 
-  const { REACT_APP_URL } = process.env;
+  const { REACT_APP_URL, REACT_APP_URL_IMG } = process.env;
   const currentUrl = location.pathname;
   const userUrl = `${REACT_APP_URL}${currentUrl}`;
   const postUrl = `${REACT_APP_URL}/p${currentUrl}`;
@@ -28,7 +29,7 @@ const UserPage = ({ useModal }) => {
 
   const decodedToken = decodeToken(auth);
 
-  const [user, setUser] = useRemoteData(userUrl);
+  const [user, setUser] = useRemoteData(userUrl, auth);
 
   const [showModal, setShowModal] = useState(false);
 
@@ -37,22 +38,10 @@ const UserPage = ({ useModal }) => {
     setShowModal(!showModal);
   };
 
-  return decodedToken ? (
+  return (
     <section className={`user-page have-sub-header ${showModal ? 'no-scroll' : ''}`}>
       {showModal ? <AvatarModal showModal={showModal} setShowModal={setShowModal} setUser={setUser} /> : null}
-      <header className="user-header">
-        {user.userAvatar === 'avatar-img' ? (
-          <IconUser className="ico logo large" />
-        ) : (
-          <img src={user.userAvatar} alt={`${user.userName} Avatar`} />
-        )}
-        <Link to={`/u/${user.userName}`}>u/{user.userName}</Link>
-        {decodedToken.id === user.userId ? (
-          <button to={'/change-avatar'} className="btn full" onClick={openChangeAvatar}>
-            Cambiar el Avatar
-          </button>
-        ) : null}
-      </header>
+      <UserHeader user={user} decodedToken={decodedToken} openChangeAvatar={openChangeAvatar} />
       <section style={{ position: 'relative' }}>
         <header className="sub-header-home" style={{ position: 'absolute' }}>
           <ul>
@@ -86,7 +75,7 @@ const UserPage = ({ useModal }) => {
         ) : null}
       </section>
     </section>
-  ) : null;
+  );
 };
 
 export default UserPage;

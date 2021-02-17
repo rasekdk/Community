@@ -2,33 +2,36 @@ import PostBodyText from './PostBodyText';
 import PostBodyImage from './PostBodyImage';
 import IconUser from '../icons/IconUser';
 import useData from '../../hooks/useData';
+import { Link } from 'react-router-dom';
 
 const PostBlock = ({ data, user }) => {
   const timeAgo = useData(data.threadDate);
+  const { REACT_APP_URL_IMG } = process.env;
+
   return (
     <div className="post-block">
       <header>
         <div className="post-info">
           {user ? (
             user.userAvatar === 'avatar-img' ? (
-              <IconUser className="ico logo small" />
+              <IconUser className="ico logo s-m" />
             ) : (
-              <img src={user.userAvatar} alt="avatar foto" />
+              <img src={`${REACT_APP_URL_IMG}/${user.userAvatar}`} alt="avatar foto" />
             )
-          ) : data.userAvatar === 'avatar-img' ? (
-            <IconUser className="ico logo small" />
+          ) : data.userAvatar === 'avatar-img' || !data.userAvatar ? (
+            <IconUser className="ico logo s-m" />
           ) : (
-            <img src={data.userAvatar} alt="avatar foto" />
+            <img src={`${REACT_APP_URL_IMG}/${data.userAvatar}`} alt="avatar foto" />
           )}
           <div className="post-creation">
-            <a href={`/c/${data.comName}`} className="community-link link">
+            <Link to={`/c/${data.name}`} className="community-link link">
               {`c/${data.comName}`}
-            </a>
+            </Link>
             <p>
               creado por
-              <a href={`/u/${data.userName}`} className="user-link link">
+              <Link to={`/u/${data.userName}`} className="user-link link">
                 {` u/${data.userName} `}
-              </a>
+              </Link>
               {`hace ${timeAgo}`}
             </p>
           </div>

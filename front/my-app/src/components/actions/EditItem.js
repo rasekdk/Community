@@ -3,7 +3,7 @@ import IconPost from '../icons/IconPost';
 import IconCross from '../icons/IconCross';
 import { AuthContext } from '../providers/AuthProvider';
 import { decodeToken } from 'react-jwt';
-import { useHistory, useRouteMatch, Link } from 'react-router-dom';
+import { useHistory, useRouteMatch } from 'react-router-dom';
 
 const EditItem = ({ data, setData, setOptionsOpen }) => {
   const [canSend, setCanSend] = useState(false);
@@ -23,13 +23,6 @@ const EditItem = ({ data, setData, setOptionsOpen }) => {
   const useEdit = () => {
     setShowCommentModal(!showCommentModal);
     setModal(!modal);
-  };
-
-  const handelEnter = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      sendEdit(e);
-    }
   };
 
   const hideModal = () => {

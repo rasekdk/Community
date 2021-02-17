@@ -6,14 +6,14 @@ const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = process.env;
 
 // Imports
-const { communityRepository, followRepository } = require('../repositories');
+const { communityRepository, followRepository, imageRepository } = require('../repositories');
 
 // Create community
 async function createCommunity(req, res) {
   try {
     // Body
     const { comName, comBio, comTopic, comSecTopic, comAvatar } = req.body;
-    const comData = { comName, comBio, comTopic, comSecTopic, comAvatar };
+    const comData = { comName, comBio, comTopic, comSecTopic };
     // Params
     const tokenUserId = req.auth.id;
 
@@ -22,14 +22,43 @@ async function createCommunity(req, res) {
       comName: Joi.string().min(2).max(25).regex(/^\S+$/).required(),
       comBio: Joi.string().min(3).max(255),
       comTopic: Joi.number().positive().required(),
-      comSecTopic: Joi.number().positive().allow(null),
-      comAvatar: Joi.string().min(4).max(255),
+      comSecTopic: Joi.number().positive().allow(0),
     });
+
+    let fileName;
+
+    if (req.files) {
+      const { comAvatar } = req.files;
+
+      fileName = await imageRepository.editSavePhoto(comAvatar, 'communities', 200, 200);
+    }
 
     await schema.validateAsync(comData);
 
+    // list of forbiden communities names
+    const regetNames = ['add', 'followed', 'created'];
+
+    if (regetNames.includes(comName)) {
+      const err = 'invalid name';
+      const error = new Error(err);
+      error.code = 409;
+      throw error;
+    }
+
+    const [usedName] = await communityRepository.getCommunityByName(comName);
+
+    if (usedName) {
+      const err = 'used com';
+      const error = new Error(err);
+      error.status = 409;
+
+      throw error;
+    }
+
     // SQL query
-    const createdCommunity = await communityRepository.createCommunity(tokenUserId, comData);
+    const createdCommunity = await communityRepository.createCommunity(tokenUserId, comData, fileName);
+
+    await followRepository.followCommunity(createdCommunity, tokenUserId);
 
     // SQL response data
     const community = await communityRepository.getCommunityById(createdCommunity);
@@ -158,11 +187,10 @@ async function followCommunity(req, res) {
 
     if (follow[0]) {
       await followRepository.unfollowCommunity(comId, userTokenId);
-      res.send(await communityRepository.getAllCommunitiesUser(userTokenId));
     } else {
       await followRepository.followCommunity(comId, userTokenId);
-      res.send(await communityRepository.getAllCommunitiesUser(userTokenId));
     }
+    res.send(await communityRepository.getAllCommunitiesUser(userTokenId));
   } catch (err) {
     if (err.name === 'ValidationError') {
       err.status = 400;

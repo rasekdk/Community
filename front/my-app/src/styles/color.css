@@ -10,6 +10,16 @@ html.dark {
   --grey-color: #747474;
 }
 
+html.light {
+  --dark-background: #c4c4c4;
+  --dark-background-opacity: #c4c4c486;
+  --main-background: #e9e8e8;
+  --sec-background: #9e9e9e;
+  --text-color: #1f1f1f;
+  --unfocus-color: #333333;
+  --grey-color: #7a7a7a;
+}
+
 html.purple {
   --main-color: darkorchid;
   --main-color-opacity: #9932cc25;
@@ -22,8 +32,26 @@ html.green {
   --gradient-color: linear-gradient(90deg, #ccff00, #00ff0a);
 }
 
+html.pink {
+  --main-color: #e0245e;
+  --main-color-opacity: #e0245e25;
+  --gradient-color: linear-gradient(90deg, #f578a0, #e0245e);
+}
+
 html.orange {
   --main-color: #ff6b00;
   --main-color-opacity: #ff6b0025;
   --gradient-color: linear-gradient(90deg, #f59678, #ff6b00);
+}
+
+html.yellow {
+  --main-color: #ffad1f;
+  --main-color-opacity: #ffad1f25;
+  --gradient-color: linear-gradient(90deg, #f3d196, #ffad1f);
+}
+
+html.blue {
+  --main-color: #1da1f2;
+  --main-color-opacity: #1da1f225;
+  --gradient-color: linear-gradient(90deg, #7abee9, #1da1f2);
 }

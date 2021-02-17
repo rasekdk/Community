@@ -4,15 +4,12 @@ import { AuthContext } from '../providers/AuthProvider';
 import { decodeToken } from 'react-jwt';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 
-const DeleteItem = ({ data, setData }) => {
+const DeleteItem = ({ data, setData, url }) => {
   const [auth] = useContext(AuthContext);
   const decodedToken = decodeToken(auth);
   const { REACT_APP_URL } = process.env;
   const location = useRouteMatch();
   const history = useHistory();
-  const currentUrl = location.url;
-
-  const reqUrl = !data.commentContent ? `${REACT_APP_URL}/p${currentUrl}` : `${REACT_APP_URL}/c${currentUrl}`;
 
   const useDelete = () => {
     const deleteItem = async () => {
@@ -24,7 +21,7 @@ const DeleteItem = ({ data, setData }) => {
         },
       });
 
-      const res = await fetch(reqUrl, {
+      const res = await fetch(url, {
         method: 'GET',
         headers: {
           auth: auth,
@@ -34,7 +31,6 @@ const DeleteItem = ({ data, setData }) => {
 
       const json = await res.json();
 
-      console.log(json);
       location.path === '/p/:id' && !data.commentContent ? history.push('/') : await setData(json);
     };
     deleteItem();

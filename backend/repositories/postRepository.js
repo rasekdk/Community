@@ -25,6 +25,18 @@ async function createPost(userId, postData) {
   return thread;
 }
 
+async function createImagePost(userId, postData, file) {
+  // get required data
+  const thread = await createThread(userId);
+
+  // DB scripts
+  const pool = await database.getPool();
+  const postQuery = 'INSERT INTO post (threadId, comId, postTitle, postContent, postType) VALUES (?,?,?,?,?)';
+  const [post] = await pool.query(postQuery, [thread, postData.comId, postData.postTitle, file, postData.postType]);
+
+  return thread;
+}
+
 // Get post by id
 async function getPostById(threadId) {
   // SQL
@@ -158,7 +170,7 @@ async function getPostsByUser(userName) {
   const pool = await database.getPool();
 
   const selectQuery =
-    'SELECT t.threadId, u.userName, u.userId, u.userAvatar, p.postTitle, p.postContent, p.postType, t.threadDate, (SELECT SUM(v.voteType) FROM user_thread_vote v WHERE v.threadId = t.threadId)  AS Votes, (SELECT COUNT(c.commentId) FROM comment c WHERE c.threadPost = t.threadId) AS comments FROM thread t INNER JOIN post p  ON t.threadId = p.threadId INNER JOIN user u ON t.userId = u.userId WHERE u.userName = ? ORDER BY t.threadDate DESC';
+    'SELECT t.threadId, u.userName, u.userId, u.userAvatar, p.postTitle, p.postContent, p.postType, t.threadDate, cm.comName,  (SELECT SUM(v.voteType) FROM user_thread_vote v WHERE v.threadId = t.threadId)  AS Votes, (SELECT COUNT(c.commentId) FROM comment c WHERE c.threadPost = t.threadId) AS comments FROM thread t INNER JOIN post p  ON t.threadId = p.threadId INNER JOIN user u ON t.userId = u.userId INNER JOIN community cm ON p.comId = cm.comId WHERE u.userName = ? ORDER BY t.threadDate DESC';
 
   const [comments] = await pool.query(selectQuery, userName);
 
@@ -217,6 +229,7 @@ async function getInteractions(threadId) {
 
 module.exports = {
   createPost,
+  createImagePost,
   getPostById,
   updatePost,
   getThread,

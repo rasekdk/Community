@@ -2,6 +2,9 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Route, Link, Switch, useLocation, Redirect } from 'react-router-dom';
 
+// Providers
+import { AuthContext } from './components/providers/AuthProvider.js';
+
 // Pages
 import HomePageNoLogged from './components/Pages/HomePageNoLogged.js';
 import HomePageLogged from './components/Pages/HomePage.js';
@@ -13,9 +16,14 @@ import RegisterCommunityPage from './components/Pages/RegisterCommunityPage';
 import LoginPage from './components/Pages/LoginPage';
 import PostPage from './components/Pages/PostPage';
 import FollowCommunityPage from './components/Pages/FollowCommunityPage';
+import CreateCommunityPage from './components/Pages/CreateCommunityPage';
 import FollowTopicPage from './components/Pages/FollowTopicPage';
 import Page404 from './components/Pages/Page404';
 import UserPage from './components/Pages/UserPage';
+import SettingsPage from './components/Pages/SettingsPage';
+import SettingsPageNoLogged from './components/Pages/SettingsPageNoLogged';
+import SettingsCustomizePage from './components/Pages/SettingsCustomizePage';
+import Pruebas from './components/Pages/Pruebas';
 
 // Components
 import NavBar from './components/NavBar/NavBar.js';
@@ -24,6 +32,10 @@ import Header from './components/header/Header.js';
 import SubHeaderHome from './components/header/SubHeaderHome.js';
 import SubHeaderBack from './components/header/SubHeaderBack.js';
 import ModalSwitch from './components/Modals/ModalSwitch';
+import AvatarModal from './components/UserProfile/AvatarModal';
+import CreatePostModal from './components/Modals/CreatePostModal.js';
+import BurgerMenu from './components/burgerMenu/BurgerMenu';
+import BurgerMenuNoLogged from './components/burgerMenu/BurgerMenuNoLogged';
 
 // Icons
 import IconLogo from './components/icons/IconLogo';
@@ -31,29 +43,50 @@ import IconCommunities from './components/icons/IconCommunities.js';
 import IconPost from './components/icons/IconPost.js';
 
 // Hooks
-import { AuthContext } from './components/providers/AuthProvider.js';
+import useChangeColor from './hooks/useColor.js';
+import useFont from './hooks/useFont.js';
+import useColor from './hooks/useColor.js';
+import useTheme from './hooks/useTheme.js';
+import CommunityPage from './components/Pages/ComunityPage.js';
 
 function App() {
-  const [datos] = useContext(AuthContext);
+  const [auth] = useContext(AuthContext);
   const [currentRoute, setCurrentRoute] = useState();
   const location = useLocation();
   const routesLogin = ['/register', '/login', '/register/topic', '/register/community'];
   const routesHome = ['', '/', '/new', '/home', '/popular'];
-  const [showModal, setShowModal] = useState(false);
+  const [postModal, setPostModal] = useState(false);
+  const [burgerModal, setBurgerModal] = useState(false);
+  const [avatarModal, setAvatarModal] = useState(false);
+  const [theme, setTheme] = useTheme();
+  useFont();
+  useColor(theme, setTheme);
 
   useEffect(() => {
     setCurrentRoute(location.pathname);
   }, [location]);
 
+  const usePostModal = () => setPostModal(!postModal);
+  const hideAvatarModal = () => setAvatarModal(!avatarModal);
+  const hideBurgerModal = () => setBurgerModal(!burgerModal);
   const useModal = () => {
-    setShowModal(!showModal);
+    console.log('hola');
   };
 
   return (
-    <div className={'App purple'}>
-      {showModal ? <ModalSwitch onClick={useModal} /> : null}
+    <div className={'App green'}>
+      {postModal ? <CreatePostModal hideModal={usePostModal} modalHandler={postModal} /> : null}
+      {/* {avatarModal ? <AvatarModal onClick={hideAvatarModal} /> : null} */}
 
-      <Header />
+      {burgerModal ? (
+        auth ? (
+          <BurgerMenu hideModal={hideBurgerModal} modalHandler={burgerModal} />
+        ) : (
+          <BurgerMenuNoLogged hideModal={hideBurgerModal} modalHandler={burgerModal} />
+        )
+      ) : null}
+
+      <Header burger={burgerModal} setBurger={setBurgerModal} />
       {routesHome.includes(currentRoute) ? <SubHeaderHome /> : null}
       {routesHome.includes(currentRoute) || routesLogin.includes(currentRoute) ? null : (
         <SubHeaderBack currentRoute={currentRoute} />
@@ -66,10 +99,10 @@ function App() {
           </Link>
         </NavItem>
         <NavItem name="post-ico">
-          {datos !== '' ? (
-            <Link to="#" className="icon-link" onClick={useModal}>
+          {auth !== '' ? (
+            <i to="#" className="icon-link" onClick={usePostModal}>
               <IconPost className="create-post ico small" />
-            </Link>
+            </i>
           ) : (
             <Link to="/register" className="icon-link">
               <IconPost className="create-post ico small" />
@@ -83,13 +116,13 @@ function App() {
         </NavItem>
       </NavBar>
 
-      <main className={`${showModal ? 'no-scroll' : ''}`}>
+      <main>
         <Switch>
           <Route exact path="/home">
             <Redirect to={'/'} />
           </Route>
           <Route exact path="/">
-            {datos !== '' ? <HomePageLogged /> : <HomePageNoLogged />}
+            {auth !== '' ? <HomePageLogged /> : <HomePageNoLogged />}
           </Route>
           <Route path="/new">
             <NewsPage />
@@ -98,7 +131,7 @@ function App() {
             <PopularPage />
           </Route>
           <Route exact path="/register">
-            {datos === '' ? (
+            {auth === '' ? (
               <RegisterPage />
             ) : (
               <Redirect
@@ -116,7 +149,7 @@ function App() {
             <RegisterCommunityPage />
           </Route>
           <Route exact path="/login">
-            {datos === '' ? (
+            {auth === '' ? (
               <LoginPage />
             ) : (
               <Redirect
@@ -130,7 +163,13 @@ function App() {
           <Route path="/p/:id">
             <PostPage />
           </Route>
-          <Route path="/c">
+          <Route path="/create/c">
+            <CreateCommunityPage />
+          </Route>
+          <Route path="/c/:id">
+            <CommunityPage />
+          </Route>
+          <Route exact path="/c">
             <FollowCommunityPage />
           </Route>
           <Route path="/t">
@@ -138,6 +177,13 @@ function App() {
           </Route>
           <Route path="/u/:id">
             <UserPage useModal={useModal} />
+          </Route>
+          <Route exact path="/settings/">
+            {auth === '' ? <SettingsPageNoLogged /> : <SettingsPage auth={auth} />}
+          </Route>
+          <Route exact path="/settings/account"></Route>
+          <Route exact path="/settings/customize">
+            <SettingsCustomizePage auth={auth} />
           </Route>
           <Route path="/*">
             <Page404 />

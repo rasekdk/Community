@@ -4,6 +4,7 @@
 const database = require('../infrastructure/database');
 const getDate = require('./getDate');
 const commentRepository = require('./commentRepository');
+const userRepository = require('./userRepository');
 
 // Log the updateData on DB - CHECK
 async function addUpdate(threadId) {
@@ -70,17 +71,27 @@ async function updateUser(data, userId) {
 
   // Update comment
   const updateQuery =
-    'UPDATE user u SET u.userName = ?, u.userEmail = ?, u.userPassword = ?, u.userAvatar = ?, u.userBio = ? WHERE userId = ?';
+    'UPDATE user u SET u.userName = ?, u.userEmail = ?, u.userPassword = ?, u.userAvatar = ?, u.userBio = ?, u.userColor =? WHERE userId = ?';
   await pool.query(updateQuery, [
     data.userName,
     data.userEmail,
     data.userPassword,
     data.userAvatar,
     data.userBio,
+    data.userColor,
     userId,
   ]);
 
   return true;
+}
+
+async function updateAvatar(fileName, userId) {
+  // SQL
+  const pool = await database.getPool();
+
+  // Update comment
+  const updateQuery = 'UPDATE user u SET u.userAvatar = ? WHERE userId = ?';
+  await pool.query(updateQuery, [fileName, userId]);
 }
 
 // Export
@@ -89,4 +100,5 @@ module.exports = {
   updatePost,
   updateComment,
   updateUser,
+  updateAvatar,
 };

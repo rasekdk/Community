@@ -17,15 +17,12 @@ const SubHeaderBack = ({ currentRoute }) => {
 
       {routesFollow.includes(currentRoute) ? (
         <ul className="menu-links">
-          <MenuLink
-            activeOnlyWhenExact={true}
-            to="/c"
-            label="Communidades"
-            className="link"
-          />
+          <MenuLink activeOnlyWhenExact={true} to="/c" label="Communidades" className="link" />
           <MenuLink to="/t" label="Temas" className="link" />
         </ul>
-      ) : null}
+      ) : (
+        <h1></h1>
+      )}
     </div>
   );
 };

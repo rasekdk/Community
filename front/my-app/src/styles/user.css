@@ -9,7 +9,8 @@
   padding: 1rem;
 }
 
-.user-page .user-header > * {
+.user-page .user-header > *,
+.burger-menu .user-header > * {
   margin: 0.5rem 0;
 }
 

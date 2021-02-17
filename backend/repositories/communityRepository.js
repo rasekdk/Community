@@ -4,25 +4,7 @@
 const database = require('../infrastructure/database');
 
 // Create Community
-async function createCommunity(userId, comData) {
-  // list of forbiden communities names
-  const regetNames = ['add', 'followed', 'created'];
-
-  if (regetNames.includes(comData.comName)) {
-    const error = new Error('El nombre de communidad no es un nombre válido');
-    error.code = 400;
-    throw error;
-  }
-
-  // Check community name
-  const [comName] = await getCommunityByName(comData.comName);
-
-  if (comName) {
-    const error = new Error('Ya existe una comunidad con ese nombre');
-    error.code = 409;
-    throw error;
-  }
-
+async function createCommunity(userId, comData, fileName) {
   // Second topic
   let secondTopic;
 
@@ -42,7 +24,7 @@ async function createCommunity(userId, comData) {
     comData.comBio,
     comData.comTopic,
     secondTopic,
-    comData.comAvatar,
+    fileName,
   ]);
 
   return community.insertId;
@@ -62,7 +44,7 @@ async function getAllCommunities() {
 async function getAllCommunitiesUser(id) {
   const pool = await database.getPool();
   const communitiesQuery =
-    'SELECT c.comName, c.comId FROM community c INNER JOIN user_topic_follow t ON c.comTopic = t.topicId WHERE t.userId = ? ';
+    'SELECT c.comName, c.comAvatar, c.comId FROM community c INNER JOIN user_topic_follow t ON c.comTopic = t.topicId WHERE t.userId = ? ';
   const [allCommunities] = await pool.query(communitiesQuery, id);
 
   const followedQuery = 'SELECT * FROM  user_community_follow WHERE userId = ? AND comId = ?';
@@ -81,13 +63,14 @@ async function getAllCommunitiesUser(id) {
       return {
         id: community.comId,
         name: community.comName,
+        avatar: community.comAvatar,
         follows: follows,
         followed: followed,
       };
     })
   );
 
-  communityList.sort((a, b) => (b.follows > a.follows ? 1 : b.follows < a.follows ? -1 : 0));
+  // communityList.sort((a, b) => (b.follows > a.follows ? 1 : b.follows < a.follows ? -1 : 0));
 
   return communityList;
 }

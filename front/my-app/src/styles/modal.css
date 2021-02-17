@@ -63,28 +63,38 @@
   border-bottom: 2px solid var(--text-color);
 }
 
-.modal-selector.open {
+.modal-selector {
   height: 60vh;
-  animation-name: swipeUp-modal;
-  animation-duration: 0.5s;
 }
 
-.modal-selector.close {
-  height: 0;
-  animation-name: swipeDown-modal;
-  animation-duration: 0.5s;
-  padding: 0;
-}
-
-.modal-main.open {
+.modal-main.open,
+.modal-selector.open {
   animation-name: swipeUp-modal-main;
   animation-duration: 0.5s;
+  bottom: 0;
 }
-.modal-main.close {
-  height: 0;
+.modal-main.close,
+.modal-selector.close {
+  bottom: -60vh;
   animation-name: swipeDown-modal-main;
   animation-duration: 0.5s;
-  padding: 0;
+}
+
+@keyframes swipeUp-modal-main {
+  from {
+    bottom: -60vh;
+  }
+  to {
+    bottom: 0vh;
+  }
+}
+@keyframes swipeDown-modal-main {
+  from {
+    bottom: 0vh;
+  }
+  to {
+    bottom: -60vh;
+  }
 }
 
 .modal.modal-comment.open {
@@ -97,6 +107,24 @@
   animation-name: swipeDown-modal-comment;
   animation-duration: 0.5s;
   padding: 0;
+}
+
+@keyframes swipeUp-modal-comment {
+  from {
+    height: 0;
+  }
+  to {
+    height: 30vh;
+  }
+}
+
+@keyframes swipeDown-modal-comment {
+  from {
+    height: 30vh;
+  }
+  to {
+    height: 0;
+  }
 }
 
 .modal-full.open {
@@ -123,43 +151,8 @@
   }
 }
 
-@keyframes swipeUp-modal-comment {
-  from {
-    height: 0;
-  }
-  to {
-    height: 30vh;
-  }
-}
-
-@keyframes swipeDown-modal-comment {
-  from {
-    height: 30vh;
-  }
-  to {
-    height: 0;
-  }
-}
-
-@keyframes swipeUp-modal-main {
-  from {
-    height: 0;
-  }
-  to {
-    height: 60vh;
-  }
-}
-@keyframes swipeDown-modal-main {
-  from {
-    height: 60vh;
-  }
-  to {
-    height: 0vh;
-  }
-}
-
 .modal-selector {
-  height: 100%;
+  height: 60vh;
   overflow: auto;
 }
 
@@ -217,7 +210,7 @@
   padding: 0.25rem;
 }
 
-.modal .send-post {
+.send-post {
   color: var(--main-color);
   background-color: transparent;
   width: auto;
@@ -230,7 +223,7 @@
   top: 1rem;
 }
 
-.modal .send-post.disable {
+.send-post.disable {
   color: var(--unfocus-color);
 }
 
@@ -294,4 +287,118 @@
 
 .more-options .option > p {
   display: flex;
+}
+
+.burger-menu {
+  display: flex;
+  flex-direction: column;
+  width: 70vw;
+  height: -webkit-fill-available;
+  background-color: var(--main-background);
+  z-index: 99999;
+  position: fixed;
+  top: 0;
+  left: 0;
+  border-top-right-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+}
+
+.burger-menu .user-header {
+  display: flex;
+  width: 100%;
+  height: fit-content;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: var(--dark-background);
+  border-top-right-radius: 0.5rem;
+}
+
+.burger-menu .user-header button {
+  font-size: 1rem;
+}
+
+.burger-menu .user-header svg {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+}
+
+.burger-menu .user-header img {
+  width: 10rem;
+  height: 10rem;
+  border-radius: 50%;
+}
+
+.burger-menu.open {
+  left: 0;
+  transition: 0.5s;
+}
+
+.burger-menu.close {
+  left: -60vw;
+  transition: 0.5s;
+}
+
+.burger-menu .menu-list {
+  margin-top: 1rem;
+}
+
+.burger-menu .menu-list li {
+  display: flex;
+  margin: 0.5rem;
+}
+
+.burger-menu .menu-list img {
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}
+
+.burger-menu .menu-list li a {
+  color: var(--text-color);
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+}
+.burger-menu .menu-list svg {
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.burger-menu .settings {
+  bottom: 0;
+  position: absolute;
+  padding: 0.5rem;
+  width: 100%;
+  background-color: var(--dark-background);
+  border-bottom-right-radius: 0.5rem;
+  border: 1px solid var(--main-background);
+}
+
+.burger-menu .settings a {
+  display: flex;
+  justify-content: space-between;
+}
+
+.colorSelector {
+  display: block;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  border: 0;
+}
+
+.colorSelector.purple {
+  background-color: darkorchid;
+}
+.colorSelector.orange {
+  background-color: #ff6b00;
+}
+.colorSelector.green {
+  background-color: #00ff0a;
+}
+
+.burger-menu.no-logged header.user-header {
+  display: block;
+  padding-top: 3rem;
 }

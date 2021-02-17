@@ -9,6 +9,7 @@
 @import url(./styles/topics.css);
 @import url(./styles/modal.css);
 @import url(./styles/user.css);
+@import url(./styles/settings.css);
 
 /* RESET */
 * {
@@ -139,13 +140,17 @@ input[type='submit']:not(.send-post),
   display: block;
   text-align: center;
   line-height: 2rem;
-  font-size: 1rem;
+  font: 400 1rem 'Roboto';
   border-radius: 0.5rem;
-  font-weight: bold;
   color: var(--dark-background);
   background: var(--gradient-color);
   border: 0;
   outline: 0;
+  padding: 0.5rem;
+}
+
+.btn.full.disable {
+  background: var(--unfocus-color);
 }
 
 .div-holder.error * {
@@ -174,11 +179,26 @@ input[type='submit']:not(.send-post),
   margin-top: 4.5rem;
 }
 
-.user-page {
+.main-section.no-padding {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.user-page,
+.community-page {
   margin-top: 6rem;
 }
 
 .no-scroll {
   overflow: hidden;
-  height: 80vh;
+  height: vh;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-center {
+  align-items: center;
 }

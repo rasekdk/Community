@@ -2,12 +2,9 @@ import { useContext, useEffect, useState } from 'react';
 import IconCross from '../icons/IconCross';
 import DivHolder from '../visualComponents/DivHolder';
 import { AuthContext } from '../providers/AuthProvider';
-import IconLogo from '../icons/IconLogo';
 import IconBack from '../icons/IconBack';
-import IconDropDown from '../icons/IconDropDown';
 import CommunitySelector from './CommunitySelector';
-import { useForm } from 'react-hook-form';
-import { useHistory } from 'react-router-dom';
+import FormPost from './FormPost';
 
 const ModalSwitch = ({ onClick }) => {
   const [modal, setModal] = useState(true);
@@ -19,17 +16,10 @@ const ModalSwitch = ({ onClick }) => {
   const [community, setCommunity] = useState('');
   const [selectedCommunity, setSelectedCommunity] = useState([]);
   const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
   const [canSend, setCanSend] = useState(false);
   const [charLeft, setCharLeft] = useState(250);
-
-  console.log();
-
-  const {
-    formState: { isSubmitting },
-  } = useForm();
-
-  const history = useHistory();
+  const [postType, setPostType] = useState('text');
+  const [selectedFile, setSelectedFile] = useState();
 
   const hideModal = () => {
     setModal(!modal);
@@ -74,18 +64,6 @@ const ModalSwitch = ({ onClick }) => {
     }
   };
 
-  const useTextarea = (e) => {
-    const charCount = e.target.value.length;
-    setCharLeft(250 - charCount);
-  };
-
-  const handleContentChange = (e) => {
-    setContent(e.target.value);
-  };
-  const handleTitleChange = (e) => {
-    setTitle(e.target.value);
-  };
-
   useEffect(() => {
     const getCommunity = async () => {
       try {
@@ -105,121 +83,73 @@ const ModalSwitch = ({ onClick }) => {
   }, [community, REACT_APP_URL]);
 
   useEffect(() => {
-    if (community !== '' && title !== '' && charLeft < 250) {
-      setCanSend(true);
-    } else {
-      setCanSend(false);
+    if (postType === 'text') {
+      if (community !== '' && title !== '' && charLeft < 250) {
+        setCanSend(true);
+      } else {
+        setCanSend(false);
+      }
+    } else if (postType === 'image') {
+      if (community !== '' && title !== '' && selectedFile) {
+        setCanSend(true);
+      } else {
+        setCanSend(false);
+      }
     }
-  }, [community, title, charLeft]);
-
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    let body = {
-      postTitle: e.target[1].value,
-      postContent: e.target[2].value,
-      comId: e.target[0].value,
-      postType: 'text',
-    };
-    try {
-      const res = await fetch(`${REACT_APP_URL}/p`, {
-        method: 'POST',
-        headers: {
-          auth: auth,
-          'Content-type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
-      const [json] = await res.json();
-
-      history.push(`/p/${json.threadId}`);
-      hideModal();
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  }, [community, title, charLeft, selectedFile, postType]);
 
   return (
     <div>
-      <div
-        className={modal ? 'modal-full open' : 'modal-full close'}
-        onClick={hideModal}
-      />
-      <DivHolder
-        className={modal ? 'modal modal-main open' : 'modal modal-main close'}
-      >
+      <div className={modal ? 'modal-full open' : 'modal-full close'} onClick={hideModal} />
+      <DivHolder className={modal ? 'modal modal-main open' : 'modal modal-main close'}>
         <header>
           <IconCross className="small ico" onClick={hideModal} />
           <h1 className="text-center">Post</h1>
         </header>
         <main className="post-form">
-          <form onSubmit={onSubmit}>
-            <div onClick={useSelector} className="community-selector">
-              {community === '' ? (
-                <div className="unfocus">
-                  <IconLogo className="ico logo medium" />
-                  <p>Elije una communidad</p>
-                  <IconDropDown className="ico small" />
-                </div>
-              ) : (
-                <div>
-                  <img
-                    src="https://source.unsplash.com/200x200/?portrait"
-                    alt="avatar foto"
-                    className="medium"
-                  />
-                  <p>{selectedCommunity[0].comName}</p>
-                </div>
-              )}
-            </div>
-            <input
-              type="text"
-              name="comId"
-              value={community}
-              style={{ display: 'none' }}
-              readOnly
-            />
-            <input
-              name="postTitle"
-              className="create-post"
-              type="text"
-              onChange={handleTitleChange}
-              placeholder="Título del post (Obligatorio)"
-            />
-            <textarea
-              maxLength="250"
-              name="postContent"
-              className="create-post"
-              onChange={useTextarea}
-              placeholder="Contenido del post (Obligatorio)"
-            />
-            <p>{charLeft}</p>
-            {canSend ? (
-              <input type="submit" className={'send-post'} value="Enviar" />
-            ) : (
-              <input
-                type="submit"
-                className={'send-post disable'}
-                value="Enviar"
-                disabled
-              />
-            )}
-          </form>
+          <div className="sub-header-modal">
+            <ul>
+              <li
+                to="/new"
+                className={`link ${postType === 'text' ? 'active' : 'unfocus'}`}
+                onClick={() => {
+                  setPostType('text');
+                  setSelectedFile(undefined);
+                }}
+              >
+                Text
+              </li>
+              <li
+                to="/new"
+                className={`link ${postType === 'image' ? 'active' : 'unfocus'}`}
+                onClick={() => {
+                  setPostType('image');
+                }}
+              >
+                Image
+              </li>
+            </ul>
+          </div>
+          <FormPost
+            hideModal={hideModal}
+            setCharLeft={setCharLeft}
+            setTitle={setTitle}
+            setSelectedFile={setSelectedFile}
+            postType={postType}
+            selectedFile={selectedFile}
+            useSelector={useSelector}
+            community={community}
+            selectedCommunity={selectedCommunity}
+            charLeft={charLeft}
+            canSend={canSend}
+          />
         </main>
       </DivHolder>
       {!selectorModal ? (
-        <DivHolder
-          className={
-            !selector
-              ? 'modal modal-selector close'
-              : 'modal modal-selector open'
-          }
-        >
+        <DivHolder className={!selector ? 'modal modal-selector close' : 'modal modal-selector open'}>
           <header>
             <IconBack className="small ico" onClick={useSelector} />
             <h1>Comunidades</h1>
-            {/* <p className="send-post" onClick={sendPost}>
-              Send
-            </p> */}
           </header>
           <DivHolder>
             {communities.map((community) => (

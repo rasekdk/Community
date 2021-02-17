@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = process.env;
 
 // Imports
-const { postRepository, commentRepository } = require('../repositories');
+const { postRepository, commentRepository, imageRepository } = require('../repositories');
 // const { getPostById } = require('../repositories/postRepository');
 
 // Post
@@ -15,21 +15,48 @@ async function createPost(req, res) {
     // Body
     const { postTitle, postContent, postType, comId } = req.body;
     const postData = { postTitle, postContent, postType, comId };
-
     // Params
     const tokenUserId = req.auth.id;
 
     // Validate
+
     const postSchema = Joi.object({
       postTitle: Joi.string().min(4).max(50).required(),
-      postContent: Joi.string().min(4).max(255).required(),
       postType: Joi.string().required(),
       comId: Joi.number().required(),
     });
-    await postSchema.validateAsync({ postTitle, postContent, postType, comId });
 
-    // SQL query
-    const createdPost = await postRepository.createPost(tokenUserId, postData);
+    const postTextSchema = Joi.object({
+      postContent: Joi.string().min(4).max(255).required(),
+    });
+
+    const postImageSchema = Joi.object({
+      postContent: Joi.required(),
+    });
+
+    await postSchema.validateAsync({ postTitle, postType, comId });
+
+    let createdPost;
+
+    if (postType === 'text') {
+      await postTextSchema.validateAsync({ postContent });
+
+      // SQL query
+      createdPost = await postRepository.createPost(tokenUserId, postData);
+    } else if (postType === 'image') {
+      if (!req.files) {
+        res.send({
+          status: false,
+          message: 'No files',
+        });
+      }
+
+      const { picture } = req.files;
+
+      const fileName = await imageRepository.editSavePhoto(picture, 'posts');
+
+      createdPost = await postRepository.createImagePost(tokenUserId, postData, fileName);
+    }
 
     // SQL response data
     const post = await postRepository.getPostById(createdPost);

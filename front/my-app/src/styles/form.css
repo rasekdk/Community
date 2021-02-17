@@ -45,7 +45,8 @@ label {
 
 form input[type='text'],
 form input[type='email'],
-form input[type='password'] {
+form input[type='password'],
+form textarea {
   line-height: 1rem;
   background-color: var(--grey-color);
   outline: none;

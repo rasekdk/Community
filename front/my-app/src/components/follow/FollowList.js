@@ -3,6 +3,7 @@ import IconTopic from '../icons/IconTopic';
 import IconLogo from '../icons/IconLogo';
 
 import { Link } from 'react-router-dom';
+import IconCommunities from '../icons/IconCommunities';
 
 const ItemList = ({ url, auth, data, follow, itemType, topics }) => {
   const [itemsList, setItemsList] = useRemoteData(url, auth);
@@ -10,6 +11,7 @@ const ItemList = ({ url, auth, data, follow, itemType, topics }) => {
   const followItem = async (e) => {
     e.preventDefault();
     const { REACT_APP_URL } = process.env;
+
     const urlPOST = `${REACT_APP_URL}/${follow}/follow/${e.target.value}`;
 
     try {
@@ -38,13 +40,16 @@ const ItemList = ({ url, auth, data, follow, itemType, topics }) => {
       </div>
     );
   } else {
+    const { REACT_APP_URL_IMG } = process.env;
     return itemsList.map((item) => (
       <div className="topic" key={item.id}>
-        {itemType === 'topic' ? (
-          <IconTopic className={'medium logo ico'} />
-        ) : null}
+        {itemType === 'topic' ? <IconTopic className={'medium logo ico'} /> : null}
         {itemType === 'community' ? (
-          <IconLogo className={'medium logo ico'} />
+          item.avatar === 'avatar-img' ? (
+            <IconLogo className="ico logo s-m" />
+          ) : (
+            <img src={`${REACT_APP_URL_IMG}/${item.avatar}`} alt="avatar foto" className="avatar foto" />
+          )
         ) : null}
         <div>
           <h2>{item.name}</h2>

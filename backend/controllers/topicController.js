@@ -168,6 +168,23 @@ async function getTopicImages(req, res) {
   }
 }
 
+async function getFollowedTopics(req, res) {
+  try {
+    const token = req.auth.id;
+
+    const topics = await topicRepository.getFollowedTopics(token);
+
+    res.send(topics);
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    console.log(err);
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
+
 module.exports = {
   createTopic,
   getTopics,
@@ -175,4 +192,5 @@ module.exports = {
   followTopic,
   deleteTopic,
   getTopicImages,
+  getFollowedTopics,
 };

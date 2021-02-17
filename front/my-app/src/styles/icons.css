@@ -4,6 +4,11 @@
   height: 1rem;
 }
 
+.s-m {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
 .medium,
 .medium svg {
   width: 2rem;
@@ -16,8 +21,15 @@
   height: 3rem;
 }
 
+.x-large,
+.x-large svg {
+  width: 4rem;
+  height: 4rem;
+}
+
 .ico {
   fill: var(--grey-color);
+  z-index: 1;
 }
 /* .ico:hover {
   fill: var(--main-color);
@@ -26,6 +38,10 @@
 
 .icon-link {
   display: inline-flex;
+}
+
+img.ico {
+  border-radius: 50%;
 }
 
 .logo path {
@@ -78,4 +94,10 @@
   position: absolute;
   top: 1rem;
   right: 1rem;
+}
+
+.avatar.foto {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
 }

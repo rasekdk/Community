@@ -5,6 +5,7 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const fileUpload = require('express-fileupload');
 
 // Imports
 const {
@@ -17,6 +18,7 @@ const {
 } = require('./controllers');
 
 const { validateAuth, validateAdmin, checkIfNeedValidation } = require('./middlewares/validateAuth');
+const { urlencoded } = require('body-parser');
 
 // .env
 const { SERVER_PORT } = process.env;
@@ -24,6 +26,8 @@ const { SERVER_PORT } = process.env;
 // Express
 const app = express();
 app.use(bodyParser.json());
+app.use(fileUpload({ createParentPath: true }));
+// app.use(express, urlencoded({ extended: true }));
 
 // CORS
 app.use(cors());
@@ -33,6 +37,7 @@ const staticPath = './public';
 app.use(express.static(staticPath));
 
 // Routes
+app.get('/home', postController.getHomePosts);
 
 app.get('/new', postController.getNewPosts);
 app.get('/popular', postController.getPopularPosts);
@@ -67,6 +72,7 @@ app.put('/c/:threadId', validateAuth, commentController.updateComment);
 app.post('/t', validateAdmin, topicController.createTopic);
 app.get('/t', topicController.getTopics);
 app.get('/t/img', topicController.getTopicImages);
+app.get('/t/follow/:id', validateAuth, topicController.getFollowedTopics);
 app.get('/t/:id', topicController.getTopicById);
 app.post('/t/follow/:id', validateAuth, topicController.followTopic);
 app.delete('/t/:id', validateAdmin, topicController.deleteTopic);
@@ -82,8 +88,7 @@ app.delete('/vote/:threadId', validateAuth, threadController.unVote);
 // Users
 app.get('/u/:name', userController.getUser);
 app.put('/u/:name', validateAuth, userController.updateUser);
-
-app.get('/', postController.getHomePosts);
+app.post('/avatar/u/', validateAuth, userController.uploadAvatar);
 
 // Listener
 app.listen(SERVER_PORT, () => console.log(`Escuchando ${SERVER_PORT}`));
