@@ -24,7 +24,7 @@ const PostBlock = ({ data, user }) => {
             <img src={`${REACT_APP_URL_IMG}/${data.userAvatar}`} alt="avatar foto" />
           )}
           <div className="post-creation">
-            <Link to={`/c/${data.name}`} className="community-link link">
+            <Link to={`/c/${data.comName}`} className="community-link link">
               {`c/${data.comName}`}
             </Link>
             <p>

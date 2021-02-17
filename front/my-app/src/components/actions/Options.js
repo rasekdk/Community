@@ -1,18 +1,17 @@
 import IconFlag from '../icons/IconFlag';
 
 import DeleteItem from './DeleteItem';
-import EditItem from './EditItem';
 
-const Options = ({ data, setData, optionsOpen, setOptionsOpen, url }) => {
+const Options = ({ children, data, setData, optionsOpen, setOptionsOpen, url }) => {
   const hideOption = () => {
     setOptionsOpen(false);
   };
 
   return optionsOpen ? (
-    <div>
+    <div style={{ height: 0, zIndex: 999 }}>
       <div className="modal-full options" onClick={hideOption} />
       <ul className="more-options">
-        <EditItem data={data} setData={setData} setOptionsOpen={setOptionsOpen} url={url} />
+        {children}
         <DeleteItem data={data} setData={setData} url={url} />
         <li className="option">
           <IconFlag className="ico small" />

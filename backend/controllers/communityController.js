@@ -6,7 +6,13 @@ const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = process.env;
 
 // Imports
-const { communityRepository, followRepository, imageRepository } = require('../repositories');
+const {
+  communityRepository,
+  followRepository,
+  imageRepository,
+  postRepository,
+  updateRepository,
+} = require('../repositories');
 
 // Create community
 async function createCommunity(req, res) {
@@ -107,14 +113,16 @@ async function getcommunityById(req, res) {
     // Params
     const id = req.params.id;
 
-    // For id = number => getCommunityById / For id = string => getCommunitybyName / For id = undefined => getAllCommunities
-    if (id === undefined) {
-      res.send(await getCommunities(req, res));
-    } else if (!isNaN(id)) {
-      res.send(await communityRepository.getCommunityById(id));
+    let community;
+
+    // For id = number => getCommunityById / For id = string => getCommunitybyName
+    if (!isNaN(id)) {
+      [community] = await communityRepository.getCommunityById(id);
     } else if (isNaN(id)) {
-      res.send(await communityRepository.getCommunityByName(id));
+      [community] = await communityRepository.getCommunityByName(id);
     }
+
+    res.send(community);
   } catch (err) {
     if (err.name === 'ValidationError') {
       err.status = 400;
@@ -218,6 +226,51 @@ async function getFollowedCommunities(req, res) {
     res.send({ error: err.message });
   }
 }
+
+async function editCommunity(req, res) {
+  try {
+    // Paramas
+    const userTokenId = req.auth.id;
+    const { comName, comBio, comTopic, comSecTopic, comAvatar } = req.body;
+
+    let body = { comName, comBio, comTopic, comSecTopic, comAvatar };
+
+
+    const comNameId = req.params.id;
+
+    const [community] = await communityRepository.getCommunityByName(comNameId);
+
+
+    if (community.comCreator !== userTokenId) {
+      const err = 'no creator';
+      const error = new Error(err);
+      error.code = 409;
+      throw error;
+    }
+
+    let fileName;
+
+    if (req.files) {
+      const { comAvatar } = req.files;
+
+      fileName = await imageRepository.editSavePhoto(comAvatar, 'communities', 200, 200);
+
+      body.comAvatar = fileName;
+    }
+
+    await updateRepository.updateCommunity(comNameId, body);
+    const newCommunity = await communityRepository.getCommunityByName(comNameId);
+
+    res.send(newCommunity);
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    console.log(err);
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
 module.exports = {
   createCommunity,
   getCommunities,
@@ -225,4 +278,5 @@ module.exports = {
   followCommunity,
   getcommunityById,
   getFollowedCommunities,
+  editCommunity,
 };

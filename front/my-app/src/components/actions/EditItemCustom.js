@@ -17,8 +17,11 @@ const EditItem = ({ data, setData, setOptionsOpen, itemEdit, itemBody }) => {
   const decodedToken = decodeToken(auth);
   const [modal, setModal] = useState(false);
 
-  const editUrl = !data.commentContent ? `${REACT_APP_URL}/p/${data.threadId}` : `${REACT_APP_URL}/c/${data.threadId}`;
-  const reqUrl = !data.commentContent ? `${REACT_APP_URL}/p${currentUrl}` : `${REACT_APP_URL}/c${currentUrl}`;
+  console.log(location.path);
+
+  const url = location.path === '/u/:id' ? `${REACT_APP_URL}${currentUrl}` : `${REACT_APP_URL}/edit${currentUrl}`;
+
+  const reqUrl = `${REACT_APP_URL}${currentUrl}`;
 
   const useEdit = () => {
     setShowCommentModal(!showCommentModal);
@@ -42,13 +45,20 @@ const EditItem = ({ data, setData, setOptionsOpen, itemEdit, itemBody }) => {
   };
 
   const sendEdit = async (e) => {
-    console.log(e.target[0].value);
     e.preventDefault();
-    const body = {
-      data: e.target[0].value,
-    };
+    let body;
 
-    await fetch(editUrl, {
+    if (itemBody === 'comBio') {
+      body = {
+        comBio: e.target[0].value,
+      };
+    } else if (itemBody === 'userBio') {
+      body = {
+        userBio: e.target[0].value,
+      };
+    }
+
+    await fetch(url, {
       method: 'PUT',
       headers: {
         auth: auth,
@@ -68,11 +78,11 @@ const EditItem = ({ data, setData, setOptionsOpen, itemEdit, itemBody }) => {
     const json = await res.json();
 
     console.log(json);
-    location.path === '/p/:id' && !data.commentContent ? history.push('/') : await setData(json);
+    await setData(json);
     hideModal();
   };
 
-  return data.userId === decodedToken.id ? (
+  return data.userId === decodedToken.id || data.comCreator === decodedToken.id ? (
     <li className="option">
       <p onClick={useEdit}>
         <IconPost className="ico small" />

@@ -6,6 +6,7 @@ import IconUser from '../icons/IconUser';
 import { useState } from 'react';
 import Options from '../actions/Options';
 import useData from '../../hooks/useData';
+import EditItem from '../actions/EditItem';
 
 const Comment = ({ data, setData, setComments, onClick, user, url }) => {
   const [optionsOpen, setOptionsOpen] = useState(false);
@@ -51,7 +52,9 @@ const Comment = ({ data, setData, setComments, onClick, user, url }) => {
 
         <div className="post-single-action">
           <IconMore className={`more ico small ${optionsOpen ? 'active' : null}`} onClick={toggleOptions} />
-          <Options data={data} setData={setData} optionsOpen={optionsOpen} setOptionsOpen={setOptionsOpen} url={url} />
+          <Options data={data} setData={setData} optionsOpen={optionsOpen} setOptionsOpen={setOptionsOpen} url={url}>
+            <EditItem data={data} setData={setData} setOptionsOpen={setOptionsOpen} url={url} />
+          </Options>
         </div>
       </div>
       {data.comment

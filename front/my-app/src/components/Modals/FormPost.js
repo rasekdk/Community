@@ -2,10 +2,13 @@ import { useForm } from 'react-hook-form';
 import IconDropDown from '../icons/IconDropDown';
 import IconLogo from '../icons/IconLogo';
 import { AuthContext } from '../providers/AuthProvider';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useRouteMatch } from 'react-router-dom';
 import { useContext, useState, useEffect } from 'react';
 
 const FormPost = ({
+  method,
+  url,
+  setData,
   hideModal,
   setCharLeft,
   setTitle,
@@ -18,7 +21,7 @@ const FormPost = ({
   charLeft,
   canSend,
 }) => {
-  const { REACT_APP_URL } = process.env;
+  const { REACT_APP_URL, REACT_APP_URL_IMG } = process.env;
   const [auth] = useContext(AuthContext);
 
   const { register, handleSubmit } = useForm();
@@ -26,6 +29,9 @@ const FormPost = ({
   const [preview, setPreview] = useState();
 
   const history = useHistory();
+  const location = useRouteMatch();
+
+  const imgUrl = `${REACT_APP_URL_IMG}/${selectedCommunity.comAvatar}`;
 
   useEffect(() => {
     if (!selectedFile) {
@@ -56,28 +62,41 @@ const FormPost = ({
   };
 
   const onSubmit = async (e) => {
+    const comId = community.comId ? community.comId : '';
+
     const formData = new FormData();
     formData.append('postType', postType);
     formData.append('postTitle', e.postTitle);
     formData.append('postContent', e.postContent);
-    formData.append('comId', community);
+    formData.append('comId', comId);
 
     if (postType === 'image') {
       formData.append('picture', e.picture[0]);
     }
 
+    const fetchUrl = method === 'POST' ? `${REACT_APP_URL}/p` : method === 'PUT' ? url : null;
+
+    console.log(fetchUrl);
+
     try {
-      const res = await fetch(`${REACT_APP_URL}/p`, {
-        method: 'POST',
+      const res = await fetch(fetchUrl, {
+        method: method,
         headers: {
           auth: auth,
         },
         body: formData,
       });
-      const [json] = await res.json();
+      const json = await res.json();
+      console.log(json);
 
-      history.push(`/p/${json.threadId}`);
-      hideModal();
+      if (method === 'POST') {
+        history.push(`/p/${json.threadId}`);
+      } else if (location.path !== '/p/:id') {
+        history.push(`/p/${json.threadId}`);
+      } else {
+        hideModal();
+        setData(json);
+      }
     } catch (err) {
       console.log(err);
     }
@@ -94,12 +113,12 @@ const FormPost = ({
           </div>
         ) : (
           <div>
-            {selectedCommunity[0].comAvatar === 'URL/' ? (
+            {selectedCommunity.comAvatar === 'avatar-img' ? (
               <IconLogo className="ico logo medium" />
             ) : (
-              <img src={selectedCommunity[0].comAvatar} alt={selectedCommunity[0].comName} />
+              <img src={imgUrl} alt={selectedCommunity.comName} className="ico medium" />
             )}
-            <p>{selectedCommunity[0].comName}</p>
+            <p>{selectedCommunity.comName}</p>
           </div>
         )}
       </div>
@@ -136,7 +155,7 @@ const FormPost = ({
           <input ref={register} type="file" name="picture" id="picture" className="fileInput" onChange={onSelectFile} />
         </label>
       ) : null}
-      {canSend ? (
+      {canSend || method === 'PUT' ? (
         <input type="submit" className={'send-post'} value="Enviar" />
       ) : (
         <input type="submit" className={'send-post disable'} value="Enviar" disabled />

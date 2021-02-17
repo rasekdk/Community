@@ -16,7 +16,7 @@ import IconCross from '../icons/IconCross';
 // Hooks
 import useScroll from '../../hooks/useScroll.js';
 
-const CreatePostModal = ({ hideModal, modalHandler }) => {
+const CreatePostModal = ({ method, hideModal, modalHandler, url, setData }) => {
   // Variables
   const { REACT_APP_URL } = process.env;
   const [auth] = useContext(AuthContext);
@@ -76,8 +76,6 @@ const CreatePostModal = ({ hideModal, modalHandler }) => {
     }
   };
 
-  console.log(selectorModal);
-
   const selectCommunity = () => {
     setSelector(!selector);
     if (selectorModal) {
@@ -90,8 +88,9 @@ const CreatePostModal = ({ hideModal, modalHandler }) => {
 
   useEffect(() => {
     const getCommunity = async () => {
+      setSelectedCommunity(community);
       try {
-        const res = await fetch(`${REACT_APP_URL}/c/${community}`, {
+        const res = await fetch(`${REACT_APP_URL}/c/${community.comId}`, {
           method: 'GET',
           headers: {
             'Content-type': 'application/json',
@@ -134,6 +133,9 @@ const CreatePostModal = ({ hideModal, modalHandler }) => {
           <main className="post-form">
             <CreatePostModalHeader postType={postType} setPostType={setPostType} setSelectedFile={setSelectedFile} />
             <FormPost
+              method={method}
+              url={url}
+              setData={setData}
               hideModal={hideModal}
               setCharLeft={setCharLeft}
               setTitle={setTitle}

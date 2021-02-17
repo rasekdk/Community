@@ -57,9 +57,11 @@ app.get('/c/p/:threadId', postController.getComments);
 app.post('/c', validateAuth, communityController.createCommunity);
 app.get('/c/f', validateAuth, communityController.getFollowedCommunities);
 app.get('/c/:id', communityController.getcommunityById);
+app.get('/p/c/:id', postController.getPostsByCommunity);
 app.get('/c', communityController.getCommunities);
 app.delete('/c/:id', validateAuth, communityController.deleteCommunity);
 app.post('/c/follow/:id', validateAuth, communityController.followCommunity);
+app.put('/edit/c/:id', validateAuth, communityController.editCommunity);
 
 // Comments
 app.post('/comment/:threadId/:commentId', validateAuth, commentController.createSubComment);

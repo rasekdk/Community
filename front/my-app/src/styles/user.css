@@ -1,16 +1,15 @@
-.user-page > header {
+.user-header,
+.community-header {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.user-page .user-header {
   background-color: var(--sec-background);
   padding: 1rem;
 }
 
-.user-page .user-header > *,
-.burger-menu .user-header > * {
+.user-header > *,
+.user-header > *,
+.community-header > * {
   margin: 0.5rem 0;
 }
 
@@ -38,6 +37,10 @@
 .columns {
   display: flex;
   gap: 0.5rem;
+}
+
+.columns > .div-holder {
+  width: 100%;
 }
 
 .columns h2 {

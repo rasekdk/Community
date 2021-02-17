@@ -101,10 +101,12 @@ async function updatePost(userId, threadId, updateData) {
 
   // Replace udefinded data with no updated data
   Object.keys(data).forEach((key) => {
-    if (data[key] === undefined || data[key] === '') {
+    if (data[key] === undefined || data[key] === '' || !data[key]) {
       data[key] = replaceData[key];
     }
   });
+
+  console.log(data);
 
   await updateRepository.updatePost(data, threadId);
 
@@ -177,6 +179,30 @@ async function getPostsByUser(userName) {
   return comments;
 }
 
+async function getPostByCommunity(comId) {
+  // SQL
+  const pool = await database.getPool();
+
+  const selectQuery =
+    'SELECT t.threadId, u.userName, u.userId, u.userAvatar, p.postTitle, p.postContent, p.postType, t.threadDate, cm.comName,  (SELECT SUM(v.voteType) FROM user_thread_vote v WHERE v.threadId = t.threadId)  AS Votes, (SELECT COUNT(c.commentId) FROM comment c WHERE c.threadPost = t.threadId) AS comments FROM thread t INNER JOIN post p  ON t.threadId = p.threadId INNER JOIN user u ON t.userId = u.userId INNER JOIN community cm ON p.comId = cm.comId WHERE cm.comId = ? ORDER BY t.threadDate DESC';
+
+  const [comments] = await pool.query(selectQuery, comId);
+
+  return comments;
+}
+
+async function getPostByCommunityName(comId) {
+  // SQL
+  const pool = await database.getPool();
+
+  const selectQuery =
+    'SELECT t.threadId, u.userName, u.userId, u.userAvatar, p.postTitle, p.postContent, p.postType, t.threadDate, cm.comName,  (SELECT SUM(v.voteType) FROM user_thread_vote v WHERE v.threadId = t.threadId)  AS Votes, (SELECT COUNT(c.commentId) FROM comment c WHERE c.threadPost = t.threadId) AS comments FROM thread t INNER JOIN post p  ON t.threadId = p.threadId INNER JOIN user u ON t.userId = u.userId INNER JOIN community cm ON p.comId = cm.comId WHERE cm.comName= ? ORDER BY t.threadDate DESC';
+
+  const [comments] = await pool.query(selectQuery, comId);
+
+  return comments;
+}
+
 async function getHomePosts(user) {
   // SQL
   const pool = await database.getPool();
@@ -236,6 +262,8 @@ module.exports = {
   getPostComments,
   deleteThread,
   getPostsByUser,
+  getPostByCommunity,
+  getPostByCommunityName,
   getHomePosts,
   getNewPosts,
   getPopularPosts,

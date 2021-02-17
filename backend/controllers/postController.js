@@ -6,7 +6,6 @@ const { JWT_SECRET } = process.env;
 
 // Imports
 const { postRepository, commentRepository, imageRepository } = require('../repositories');
-// const { getPostById } = require('../repositories/postRepository');
 
 // Post
 // Create post
@@ -256,6 +255,23 @@ async function getPopularPosts(req, res) {
   }
 }
 
+async function getPostsByCommunity(req, res) {
+  try {
+    const id = req.params.id;
+
+    const posts = await postRepository.getPostByCommunityName(id);
+
+    res.send(posts);
+  } catch (err) {
+    console.log(err);
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
+
 module.exports = {
   createPost,
   getPost,
@@ -266,4 +282,5 @@ module.exports = {
   getHomePosts,
   getNewPosts,
   getPopularPosts,
+  getPostsByCommunity,
 };

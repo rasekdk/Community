@@ -162,8 +162,8 @@ async function updateUser(req, res) {
     const tokenUserId = req.auth.id;
 
     // Body
-    const { userName, userEmail, userPassword, userAvatar, userColor, userBio } = req.body;
-    const data = { userName, userEmail, userPassword, userAvatar, userColor, userBio };
+    const { userName, userEmail, userPassword, userAvatar, userBio } = req.body;
+    const data = { userName, userEmail, userPassword, userAvatar, userBio };
 
     // Validate
     const userSchema = Joi.string().regex(/^\S+$/).required();

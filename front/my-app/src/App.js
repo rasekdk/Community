@@ -75,7 +75,7 @@ function App() {
 
   return (
     <div className={'App green'}>
-      {postModal ? <CreatePostModal hideModal={usePostModal} modalHandler={postModal} /> : null}
+      {postModal ? <CreatePostModal method={'POST'} hideModal={usePostModal} modalHandler={postModal} /> : null}
       {/* {avatarModal ? <AvatarModal onClick={hideAvatarModal} /> : null} */}
 
       {burgerModal ? (

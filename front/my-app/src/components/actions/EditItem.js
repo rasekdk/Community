@@ -42,18 +42,10 @@ const EditItem = ({ data, setData, setOptionsOpen }) => {
   };
 
   const sendEdit = async (e) => {
-    console.log(e.target[0].value);
     e.preventDefault();
-    const body = !data.commentContent
-      ? {
-          postTitle: e.target[0].value,
-          postContent: e.target[1].value,
-          postType: '',
-          comId: '',
-        }
-      : {
-          commentContent: e.target[0].value,
-        };
+    const body = {
+      commentContent: e.target[0].value,
+    };
 
     await fetch(editUrl, {
       method: 'PUT',
@@ -74,7 +66,6 @@ const EditItem = ({ data, setData, setOptionsOpen }) => {
 
     const json = await res.json();
 
-    console.log(json);
     location.path === '/p/:id' && !data.commentContent ? history.push('/') : await setData(json);
     hideModal();
   };

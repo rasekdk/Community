@@ -22,8 +22,12 @@ const FollowPage = () => {
   return (
     <section className="div-holder main-section have-sub-header">
       <h1 className="text-center">Comunidades</h1>
-      <SignButton link={'/create/c'}>Crea una comunidad</SignButton>
-      <Separator />
+      {auth ? (
+        <div>
+          <SignButton link={'/create/c'}>Crea una comunidad</SignButton>
+          <Separator />
+        </div>
+      ) : null}
       <FollowList url={url} auth={auth} follow="c" itemType="community" />
     </section>
   );

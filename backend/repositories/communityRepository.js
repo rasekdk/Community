@@ -79,7 +79,7 @@ async function getAllCommunitiesUser(id) {
 async function getCommunityById(comId) {
   const pool = await database.getPool();
   const selectCom =
-    'SELECT comId, comName, comBio, t.topicName AS mainTopic, t2.topicName AS secondTopic, comAvatar FROM community c INNER JOIN topic t ON t.topicId = c.comTopic INNER JOIN topic t2 ON t2.topicId = c.comSecTopic WHERE c.comId = ?';
+    'SELECT comId, comName, comBio, comCreator, t.topicName AS mainTopic, t2.topicName AS secondTopic, comAvatar ,(SELECT COUNT(f.userId) FROM user_community_follow f WHERE c.comId = f.comId) AS follows, (SELECT COUNT(p.threadId) FROM post p WHERE p.comId = c.comId ) AS posts FROM community c INNER JOIN topic t ON t.topicId = c.comTopic INNER JOIN topic t2 ON t2.topicId = c.comSecTopic WHERE c.comId = ?';
   const [community] = await pool.query(selectCom, comId);
 
   return community;
@@ -89,7 +89,7 @@ async function getCommunityById(comId) {
 async function getCommunityByName(comName) {
   const pool = await database.getPool();
   const selectCom =
-    'SELECT comId, comName, comBio, t.topicName AS mainTopic, t2.topicName AS secondTopic, comAvatar FROM community c INNER JOIN topic t ON t.topicId = c.comTopic INNER JOIN topic t2 ON t2.topicId = c.comSecTopic WHERE c.comName = ?';
+    'SELECT comId, comName, comBio, comCreator, comTopic, comSecTopic,  t.topicName AS mainTopic, t2.topicName AS secondTopic, comAvatar ,(SELECT COUNT(f.userId) FROM user_community_follow f WHERE c.comId = f.comId) AS follows, (SELECT COUNT(p.threadId) FROM post p WHERE p.comId = c.comId ) AS posts FROM community c INNER JOIN topic t ON t.topicId = c.comTopic INNER JOIN topic t2 ON t2.topicId = c.comSecTopic WHERE c.comName = ?';
   const [community] = await pool.query(selectCom, comName);
 
   return community;

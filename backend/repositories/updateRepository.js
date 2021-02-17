@@ -5,6 +5,8 @@ const database = require('../infrastructure/database');
 const getDate = require('./getDate');
 const commentRepository = require('./commentRepository');
 const userRepository = require('./userRepository');
+const { func } = require('joi');
+const communityRepository = require('./communityRepository');
 
 // Log the updateData on DB - CHECK
 async function addUpdate(threadId) {
@@ -71,14 +73,13 @@ async function updateUser(data, userId) {
 
   // Update comment
   const updateQuery =
-    'UPDATE user u SET u.userName = ?, u.userEmail = ?, u.userPassword = ?, u.userAvatar = ?, u.userBio = ?, u.userColor =? WHERE userId = ?';
+    'UPDATE user u SET u.userName = ?, u.userEmail = ?, u.userPassword = ?, u.userAvatar = ?, u.userBio = ? WHERE userId = ?';
   await pool.query(updateQuery, [
     data.userName,
     data.userEmail,
     data.userPassword,
     data.userAvatar,
     data.userBio,
-    data.userColor,
     userId,
   ]);
 
@@ -94,6 +95,34 @@ async function updateAvatar(fileName, userId) {
   await pool.query(updateQuery, [fileName, userId]);
 }
 
+async function updateCommunity(comName, body) {
+  // SQL
+  const pool = await database.getPool();
+
+  let data = body;
+
+  const [replaceData] = await communityRepository.getCommunityByName(comName);
+
+  Object.keys(data).forEach((key) => {
+    if (data[key] === undefined || data[key] === '' || !data[key]) {
+      data[key] = replaceData[key];
+    }
+  });
+
+  // Update community
+  const updateQuery =
+    'UPDATE community SET comName = ?, comAvatar = ?, comBio = ?, comTopic = ?,  comSecTopic = ? WHERE comName = ?';
+
+  await pool.query(updateQuery, [
+    data.comName,
+    data.comAvatar,
+    data.comBio,
+    data.comTopic,
+    data.comSecTopic,
+    data.comName,
+  ]);
+}
+
 // Export
 module.exports = {
   addUpdate,
@@ -101,4 +130,5 @@ module.exports = {
   updateComment,
   updateUser,
   updateAvatar,
+  updateCommunity,
 };
