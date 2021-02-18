@@ -113,6 +113,16 @@ async function updateUser(tokenUserId, userName, updateData) {
   return user;
 }
 
+async function getAllUsers() {
+  // SQL
+  const pool = await database.getPool();
+  const query = 'SELECT userName, userAvatar FROM user';
+  const [users] = await pool.query(query);
+
+  // Response
+  return users;
+}
+
 module.exports = {
   createUser,
   getUserByEmail,
@@ -120,4 +130,5 @@ module.exports = {
   getUserById,
   getUserPage,
   updateUser,
+  getAllUsers,
 };

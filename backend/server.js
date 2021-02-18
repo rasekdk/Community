@@ -15,6 +15,7 @@ const {
   topicController,
   commentController,
   postController,
+  searchController,
 } = require('./controllers');
 
 const { validateAuth, validateAdmin, checkIfNeedValidation } = require('./middlewares/validateAuth');
@@ -37,6 +38,9 @@ const staticPath = './public';
 app.use(express.static(staticPath));
 
 // Routes
+
+app.get('/search', searchController.searchItem);
+
 app.get('/home', postController.getHomePosts);
 
 app.get('/new', postController.getNewPosts);
