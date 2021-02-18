@@ -165,7 +165,7 @@ const CreateCommunityPage = () => {
             />
           </div>
           {openMainSelector ? (
-            <div>
+            <div className="community-selector-dropDown">
               {topics.map((topic) => (
                 <div key={topic.topicId} onClick={() => handleOpenSelector(setSelectedTopic(topic))}>
                   {topic.topicName}
@@ -190,7 +190,7 @@ const CreateCommunityPage = () => {
             />
           </div>
           {openSecSelector ? (
-            <div>
+            <div className="community-selector-dropDown">
               {secTopics.map((topic) => (
                 <div key={topic.topicId} onClick={() => handleOpenSecSelector(setSelectedSecTopic(topic))}>
                   {topic.topicName}

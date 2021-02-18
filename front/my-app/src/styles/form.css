@@ -121,3 +121,15 @@ textarea:focus {
 .fileInput {
   display: none;
 }
+
+.community-selector .community-selector-dropDown {
+  flex-direction: column;
+  align-items: baseline;
+  gap: 1rem;
+  position: absolute;
+  background-color: var(--main-background);
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  width: calc(100% - 2rem);
+  z-index: 2;
+}

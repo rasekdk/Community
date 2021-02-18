@@ -56,12 +56,15 @@ app.get('/c/p/:threadId', postController.getComments);
 // Community
 app.post('/c', validateAuth, communityController.createCommunity);
 app.get('/c/f', validateAuth, communityController.getFollowedCommunities);
+app.get('/c/created', validateAuth, communityController.getCreatedCommunities);
 app.get('/c/:id', communityController.getcommunityById);
 app.get('/p/c/:id', postController.getPostsByCommunity);
 app.get('/c', communityController.getCommunities);
 app.delete('/c/:id', validateAuth, communityController.deleteCommunity);
 app.post('/c/follow/:id', validateAuth, communityController.followCommunity);
 app.put('/edit/c/:id', validateAuth, communityController.editCommunity);
+app.put('/c/avatar/:id', validateAuth, communityController.updateAvatar);
+app.put('/c/bio/:id', validateAuth, communityController.updateBio);
 
 // Comments
 app.post('/comment/:threadId/:commentId', validateAuth, commentController.createSubComment);
@@ -89,6 +92,11 @@ app.delete('/vote/:threadId', validateAuth, threadController.unVote);
 
 // Users
 app.get('/u/:name', userController.getUser);
+app.put('/u/name', validateAuth, userController.updateName);
+app.put('/u/email', validateAuth, userController.updateEmail);
+app.put('/u/password', validateAuth, userController.updatePassword);
+app.put('/u/avatar', validateAuth, userController.uploadAvatar);
+app.put('/u/default', validateAuth, userController.updateAvatar);
 app.put('/u/:name', validateAuth, userController.updateUser);
 app.post('/avatar/u/', validateAuth, userController.uploadAvatar);
 

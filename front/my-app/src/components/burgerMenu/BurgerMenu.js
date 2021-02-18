@@ -8,7 +8,7 @@ import useScroll from '../../hooks/useScroll.js';
 import useRemoteData from '../../hooks/useRemoteData';
 import useChangeColor from '../../hooks/useColor';
 
-import { useLocation } from 'react-router';
+import { useHistory, useLocation } from 'react-router';
 import AvatarModal from '../UserProfile/AvatarModal';
 import IconCross from '../icons/IconCross';
 import IconList from '../icons/IconList';
@@ -17,7 +17,8 @@ import IconUser from '../icons/IconUser';
 import IconSettings from '../icons/IconSettings';
 
 const BurgerMenu = ({ hideModal, modalHandler, setColor }) => {
-  const [auth] = useContext(AuthContext);
+  const [auth, setAuth] = useContext(AuthContext);
+  const history = useHistory();
 
   const { REACT_APP_URL, REACT_APP_URL_IMG } = process.env;
 
@@ -41,6 +42,12 @@ const BurgerMenu = ({ hideModal, modalHandler, setColor }) => {
   };
 
   useScroll(modal);
+
+  const useLogOut = () => {
+    setAuth('');
+    history.push('/');
+    hideModal();
+  };
 
   return (
     <DivHolder>
@@ -106,6 +113,11 @@ const BurgerMenu = ({ hideModal, modalHandler, setColor }) => {
             </Link>
           </li>
         </ul>
+        <DivHolder className="log-out">
+          <Link to="/" onClick={useLogOut}>
+            Cerrar sesión
+          </Link>
+        </DivHolder>
         <DivHolder className="settings">
           <Link to="/settings" className="unfocus-link" onClick={handleHide}>
             <p>Settings</p>

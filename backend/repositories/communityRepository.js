@@ -89,7 +89,7 @@ async function getCommunityById(comId) {
 async function getCommunityByName(comName) {
   const pool = await database.getPool();
   const selectCom =
-    'SELECT comId, comName, comBio, comCreator, comTopic, comSecTopic,  t.topicName AS mainTopic, t2.topicName AS secondTopic, comAvatar ,(SELECT COUNT(f.userId) FROM user_community_follow f WHERE c.comId = f.comId) AS follows, (SELECT COUNT(p.threadId) FROM post p WHERE p.comId = c.comId ) AS posts FROM community c INNER JOIN topic t ON t.topicId = c.comTopic INNER JOIN topic t2 ON t2.topicId = c.comSecTopic WHERE c.comName = ?';
+    'SELECT comId, comName, comBio, u.userName AS comCreator, comTopic, comSecTopic,  t.topicName AS mainTopic, t2.topicName AS secondTopic, comAvatar ,(SELECT COUNT(f.userId) FROM user_community_follow f WHERE c.comId = f.comId) AS follows, (SELECT COUNT(p.threadId) FROM post p WHERE p.comId = c.comId ) AS posts FROM community c INNER JOIN topic t ON t.topicId = c.comTopic INNER JOIN topic t2 ON t2.topicId = c.comSecTopic INNER JOIN user u ON u.userId = c.comCreator WHERE c.comName = ?';
   const [community] = await pool.query(selectCom, comName);
 
   return community;
@@ -155,6 +155,24 @@ async function checkFollow(comId, userId) {
   return follow;
 }
 
+async function updateAvatar(fileName, comId) {
+  // SQL
+  const pool = await database.getPool();
+
+  // Update comment
+  const updateQuery = 'UPDATE community  SET comAvatar = ? WHERE comName = ?';
+  await pool.query(updateQuery, [fileName, comId]);
+}
+
+async function updateBio(comBio, comId) {
+  // SQL
+  const pool = await database.getPool();
+
+  // Update comment
+  const updateQuery = 'UPDATE community  SET comBio = ? WHERE comName = ?';
+  await pool.query(updateQuery, [comBio, comId]);
+}
+
 module.exports = {
   createCommunity,
   getAllCommunities,
@@ -167,4 +185,6 @@ module.exports = {
   deleteCommunityById,
   deleteCommunityByName,
   checkFollow,
+  updateAvatar,
+  updateBio,
 };

@@ -30,7 +30,8 @@ const SettingsPage = ({ auth }) => {
         </SettingsItem>
         <SettingsItem title={'Pantalla'} to={'/settings/customize'} />
       </SettingsSection>
-
+      <SettingsSection sectionTitle={'Comunidades'}></SettingsSection>
+      <SettingsItem title={'Edita tus comunidades'} to={'settings/community'} />
       <SettingsSection sectionTitle={'Legal'}>
         <SettingsItem title={'Páginas legales'} to={'/settings/legal'} />
       </SettingsSection>

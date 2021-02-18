@@ -123,6 +123,48 @@ async function updateCommunity(comName, body) {
   ]);
 }
 
+async function updateName(userName, userId) {
+  // SQL
+  const pool = await database.getPool();
+
+  // Query
+  const updateQuery = 'UPDATE user SET userName = ? WHERE userId =?';
+  await pool.query(updateQuery, [userName, userId]);
+
+  const query = 'SELECT * FROM user WHERE userId = ?';
+  const [users] = await pool.query(query, userId);
+
+  return users[0];
+}
+
+async function updateEmail(userEmail, userId) {
+  // SQL
+  const pool = await database.getPool();
+
+  // Query
+  const updateQuery = 'UPDATE user SET userEmail = ? WHERE userId =?';
+  await pool.query(updateQuery, [userEmail, userId]);
+
+  const query = 'SELECT * FROM user WHERE userId = ?';
+  const [users] = await pool.query(query, userId);
+
+  return users[0];
+}
+
+async function updatePassword(userPassword, userId) {
+  // SQL
+  const pool = await database.getPool();
+
+  // Query
+  const updateQuery = 'UPDATE user SET userPassword = ? WHERE userId =?';
+  await pool.query(updateQuery, [userPassword, userId]);
+
+  const query = 'SELECT * FROM user WHERE userId = ?';
+  const [users] = await pool.query(query, userId);
+
+  return users[0];
+}
+
 // Export
 module.exports = {
   addUpdate,
@@ -131,4 +173,7 @@ module.exports = {
   updateUser,
   updateAvatar,
   updateCommunity,
+  updateName,
+  updateEmail,
+  updatePassword,
 };

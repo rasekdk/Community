@@ -235,11 +235,9 @@ async function editCommunity(req, res) {
 
     let body = { comName, comBio, comTopic, comSecTopic, comAvatar };
 
-
     const comNameId = req.params.id;
 
     const [community] = await communityRepository.getCommunityByName(comNameId);
-
 
     if (community.comCreator !== userTokenId) {
       const err = 'no creator';
@@ -271,6 +269,91 @@ async function editCommunity(req, res) {
     res.send({ error: err.message });
   }
 }
+
+async function getCreatedCommunities(req, res) {
+  try {
+    // Params
+    const token = req.auth;
+
+    const communities = await communityRepository.getCreatedCommunities(token.id);
+
+    res.send(communities);
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    console.log(err);
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
+
+async function updateAvatar(req, res) {
+  try {
+    // Params
+    const comName = req.params.id;
+    const token = req.auth;
+
+    const [checkCommunity] = await communityRepository.getCommunityByName(comName);
+
+    if (token.name !== checkCommunity.comCreator) {
+      const error = new Error('no creator');
+      error.code = 409;
+      throw error;
+    }
+
+    const { comAvatar } = req.files;
+
+    const fileName = await imageRepository.editSavePhoto(comAvatar, 'communities', 200, 200);
+
+    await communityRepository.updateAvatar(fileName, comName);
+
+    const [community] = await communityRepository.getCommunityByName(comName);
+
+    res.send(community);
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    console.log(err);
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
+
+async function updateBio(req, res) {
+  try {
+    // Params
+    const comName = req.params.id;
+    const token = req.auth;
+
+    const comBio = req.body.comBio;
+
+    console.log(comBio);
+
+    const [checkCommunity] = await communityRepository.getCommunityByName(comName);
+
+    if (token.name !== checkCommunity.comCreator) {
+      const error = new Error('no creator');
+      error.code = 409;
+      throw error;
+    }
+
+    await communityRepository.updateBio(comBio, checkCommunity.comName);
+
+    const [community] = await communityRepository.getCommunityByName(comName);
+
+    res.send(community);
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    console.log(err);
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
+
 module.exports = {
   createCommunity,
   getCommunities,
@@ -279,4 +362,7 @@ module.exports = {
   getcommunityById,
   getFollowedCommunities,
   editCommunity,
+  getCreatedCommunities,
+  updateAvatar,
+  updateBio,
 };

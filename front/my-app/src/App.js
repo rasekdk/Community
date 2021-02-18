@@ -48,12 +48,29 @@ import useFont from './hooks/useFont.js';
 import useColor from './hooks/useColor.js';
 import useTheme from './hooks/useTheme.js';
 import CommunityPage from './components/Pages/ComunityPage.js';
+import SettingsAccountPage from './components/Pages/SettingsAccountPage.js';
+import SettingsAvatarPage from './components/Pages/SettingsAvatarPage.js';
+import SettingsUserNamePage from './components/Pages/SettingsUserNamePage.js';
+import SettingsEmailPage from './components/Pages/SettingsEmailPage.js';
+import SettingsPasswordPage from './components/Pages/SettingsPasswordPage.js';
+import SettingsCommunityPage from './components/Pages/SettingsCommunityPage.js';
+import SettingsCommunityEditPage from './components/Pages/SettingsCommunitEditPage.js';
+import SettingsCommunityAvatarPage from './components/Pages/SettingsCommunityBioPage.js';
 
 function App() {
   const [auth] = useContext(AuthContext);
   const [currentRoute, setCurrentRoute] = useState();
   const location = useLocation();
-  const routesLogin = ['/register', '/login', '/register/topic', '/register/community'];
+  const routesLogin = [
+    '/register',
+    '/login',
+    '/register/topic',
+    '/register/community',
+    '/settings/account/avatar',
+    '/settings/account/name',
+    '/settings/account/password',
+    '/settings/account/email',
+  ];
   const routesHome = ['', '/', '/new', '/home', '/popular'];
   const [postModal, setPostModal] = useState(false);
   const [burgerModal, setBurgerModal] = useState(false);
@@ -76,7 +93,6 @@ function App() {
   return (
     <div className={'App green'}>
       {postModal ? <CreatePostModal method={'POST'} hideModal={usePostModal} modalHandler={postModal} /> : null}
-      {/* {avatarModal ? <AvatarModal onClick={hideAvatarModal} /> : null} */}
 
       {burgerModal ? (
         auth ? (
@@ -181,7 +197,27 @@ function App() {
           <Route exact path="/settings/">
             {auth === '' ? <SettingsPageNoLogged /> : <SettingsPage auth={auth} />}
           </Route>
-          <Route exact path="/settings/account"></Route>
+          <Route exact path="/settings/account">
+            <SettingsAccountPage />
+          </Route>
+          <Route exact path="/settings/account/avatar">
+            <SettingsAvatarPage />
+          </Route>
+          <Route exact path="/settings/account/name">
+            <SettingsUserNamePage />
+          </Route>
+          <Route exact path="/settings/account/email">
+            <SettingsEmailPage />
+          </Route>
+          <Route exact path="/settings/account/password">
+            <SettingsPasswordPage />
+          </Route>
+          <Route exact path="/settings/community">
+            <SettingsCommunityPage />
+          </Route>
+          <Route exact path="/settings/community/:id">
+            <SettingsCommunityEditPage />
+          </Route>
           <Route exact path="/settings/customize">
             <SettingsCustomizePage auth={auth} />
           </Route>

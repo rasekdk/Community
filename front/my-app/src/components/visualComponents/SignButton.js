@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
 import DivHolder from './DivHolder';
 
-const SignButton = ({ children, link, onClick }) => {
+const SignButton = ({ children, link, onClick, className, classNameDiv }) => {
   return (
-    <DivHolder>
-      <Link to={link} onClick={onClick} className="btn full">
+    <DivHolder className={classNameDiv}>
+      <Link to={link} onClick={onClick} className={`btn full ${className}`}>
         {children}
       </Link>
     </DivHolder>

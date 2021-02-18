@@ -45,7 +45,7 @@ async function getUserPage(name) {
   // SQL
   // SQL
   const pool = await database.getPool();
-  const query = 'SELECT userId, userName, userAvatar, userBio, userRole FROM user WHERE userName = ?';
+  const query = 'SELECT userId, userName, userEmail, userAvatar, userBio, userRole FROM user WHERE userName = ?';
   const [user] = await pool.query(query, name);
 
   const json = user[0];

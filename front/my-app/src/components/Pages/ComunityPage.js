@@ -23,11 +23,14 @@ const CommunityPage = () => {
   const query = useQuery();
   const queryParam = query.get('page');
 
-  console.log(community);
-
   return community ? (
     <section className={`community-page have-sub-header `}>
-      <CommunityHeader avatar={community.comAvatar} name={community.comName} data={community} />
+      <CommunityHeader
+        avatar={community.comAvatar}
+        name={community.comName}
+        data={community}
+        creator={community.comCreator}
+      />
       <section style={{ position: 'relative', marginTop: '0', paddingTop: '2rem' }}>
         <header className="sub-header-home" style={{ position: 'absolute', top: '0rem' }}>
           <ul>

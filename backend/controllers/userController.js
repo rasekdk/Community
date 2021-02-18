@@ -82,7 +82,7 @@ async function login(req, res) {
     await schema.validateAsync({ name, password });
 
     function validateEmail(email) {
-      var re = /\S+@\S+\.\S+/;
+      const re = /\S+@\S+\.\S+/;
       return re.test(email);
     }
 
@@ -93,8 +93,6 @@ async function login(req, res) {
     loginUseEmail
       ? (user = await userRepository.getUserByEmail(name))
       : (user = await userRepository.getUserByName(name));
-
-    console.log('user', user);
 
     if (!user) {
       const error = new Error('El usuario no es correcto');
@@ -186,7 +184,6 @@ async function updateUser(req, res) {
     const tokenPayload = {
       id: user.userId,
       name: user.userName,
-
       role: user.userRole,
     };
     const token = jwt.sign(tokenPayload, JWT_SECRET, {
@@ -215,8 +212,6 @@ async function uploadAvatar(req, res) {
       });
     }
     const { picture } = req.files;
-
-    console.log(req.files);
 
     const fileName = await imageRepository.editSavePhoto(picture, 'users', 200, 200);
 
@@ -248,10 +243,209 @@ async function uploadAvatar(req, res) {
   }
 }
 
+async function updateName(req, res) {
+  try {
+    // Params
+    const tokenUser = req.auth;
+
+    const newUserName = req.body.userName;
+
+    const nameSchema = Joi.string().regex(/^\S+$/);
+
+    await nameSchema.validateAsync(newUserName);
+
+    const user = await userRepository.getUserByName(tokenUser.name);
+
+    if (!user) {
+      const error = new Error('no user');
+      error.code = 409;
+      throw error;
+    }
+
+    if (user.userId !== tokenUser.id) {
+      const error = new Error('incorrect user');
+      error.code = 409;
+      throw error;
+    }
+
+    const newUser = await updateRepository.updateName(newUserName, tokenUser.id);
+
+    // generate jwt
+    const tokenPayload = {
+      id: newUser.userId,
+      name: newUser.userName,
+      role: newUser.userRole,
+    };
+    const token = jwt.sign(tokenPayload, JWT_SECRET, {
+      expiresIn: '30d',
+    });
+
+    res.send({ user: newUser, auth: token });
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    console.log(err);
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
+
+async function updateEmail(req, res) {
+  try {
+    // Params
+    const tokenUser = req.auth;
+
+    const newUserEmail = req.body.userEmail;
+
+    const emailSchema = Joi.string().email();
+
+    await emailSchema.validateAsync(newUserEmail);
+
+    const user = await userRepository.getUserByName(tokenUser.name);
+
+    if (!user) {
+      const error = new Error('no user');
+      error.code = 409;
+      throw error;
+    }
+
+    if (user.userId !== tokenUser.id) {
+      const error = new Error('incorrect user');
+      error.code = 409;
+      throw error;
+    }
+
+    const newUser = await updateRepository.updateEmail(newUserEmail, tokenUser.id);
+
+    // generate jwt
+    const tokenPayload = {
+      id: newUser.userId,
+      name: newUser.userName,
+      role: newUser.userRole,
+    };
+    const token = jwt.sign(tokenPayload, JWT_SECRET, {
+      expiresIn: '30d',
+    });
+
+    res.send({ user: newUser, auth: token });
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    console.log(err);
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
+
+async function updatePassword(req, res) {
+  try {
+    // Params
+    const tokenUser = req.auth;
+
+    const { currentPassword, userPassword, userRepeatPassword } = req.body;
+
+    const body = { currentPassword, userPassword, userRepeatPassword };
+
+    const passwordSchema = Joi.object({
+      currentPassword: Joi.string().min(4).max(20).regex(/^\S+$/).required(),
+      userPassword: Joi.string().min(4).max(20).regex(/^\S+$/).required(),
+      userRepeatPassword: Joi.ref('userPassword'),
+    });
+
+    await passwordSchema.validateAsync(body);
+
+    const passwordHash = await bcrypt.hash(userPassword, 10);
+
+    const user = await userRepository.getUserByName(tokenUser.name);
+
+    if (!user) {
+      const error = new Error('no user');
+      error.code = 409;
+      throw error;
+    }
+
+    if (user.userId !== tokenUser.id) {
+      const error = new Error('incorrect user');
+      error.code = 409;
+      throw error;
+    }
+
+    const isValidPassword = await bcrypt.compare(currentPassword, user.userPassword);
+
+    if (!isValidPassword) {
+      const error = new Error('La contraseña no es correcta');
+      error.code = 401;
+      throw error;
+    }
+
+    const newUser = await updateRepository.updatePassword(passwordHash, tokenUser.id);
+
+    // generate jwt
+    const tokenPayload = {
+      id: newUser.userId,
+      name: newUser.userName,
+      role: newUser.userRole,
+    };
+    const token = jwt.sign(tokenPayload, JWT_SECRET, {
+      expiresIn: '30d',
+    });
+
+    res.send({ user: newUser, auth: token });
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    console.log(err);
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
+
+async function updateAvatar(req, res) {
+  try {
+    // Params
+    const userToken = req.auth;
+
+    const fileName = req.body.userAvatar;
+
+    await updateRepository.updateAvatar(fileName, userToken.id);
+
+    const user = await userRepository.getUserById(userToken.id);
+
+    // generate jwt
+    const tokenPayload = {
+      id: user.userId,
+      name: user.userName,
+      role: user.userRole,
+    };
+    const token = jwt.sign(tokenPayload, JWT_SECRET, {
+      expiresIn: '30d',
+    });
+
+    res.send({
+      user: user,
+      auth: token,
+    });
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      err.status = 400;
+    }
+    console.log(err);
+    res.status(err.status || 500);
+    res.send({ error: err.message });
+  }
+}
+
 module.exports = {
   register,
   login,
   getUser,
   updateUser,
   uploadAvatar,
+  updateName,
+  updateEmail,
+  updatePassword,
+  updateAvatar,
 };

@@ -3,6 +3,10 @@
   padding-top: 0.5rem;
 }
 
+.settings-section.padding-bottom {
+  padding-bottom: 0.25rem;
+}
+
 .main-section.settings-section.have-sub-header {
   margin-top: 6rem;
 }
@@ -156,4 +160,67 @@
 
 .theme-selector.light h3 {
   color: #1f1f1f;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  background-color: var(--main-background);
+  height: 2rem;
+  margin-bottom: 1rem;
+}
+
+.settings-header button {
+  background-color: transparent;
+  border: 0;
+  color: var(--main-color);
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  font-size: 1.25rem;
+  z-index: 1;
+}
+
+.settings-header button.disabled {
+  color: var(--unfocus-color);
+}
+
+.settings-header h1 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  width: 100%;
+  position: absolute;
+  text-align: center;
+  z-index: 0;
+}
+
+.settings-main h2 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.settings-main form {
+  margin-top: 1rem;
+}
+
+.settings-main form label {
+  color: var(--text-color);
+  margin-top: 1rem;
+}
+
+.settings-main form input[type='text'],
+.settings-main form input[type='password'],
+.settings-main form textarea,
+.settings-main form input[type='email'] {
+  background-color: transparent;
+  font-family: 'Roboto', sans-serif;
+  font-size: 1rem;
+  color: var(--text-color);
+  padding-left: 0;
+  border-bottom: 1px solid var(--unfocus-color);
+  border-radius: 0;
+}
+
+.settings-main form input[type='text']::placeholder,
+.settings-main form input[type='email']::placeholder {
+  color: (--unfocus-color);
 }

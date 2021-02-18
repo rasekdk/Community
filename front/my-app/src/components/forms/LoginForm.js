@@ -19,7 +19,6 @@ const LoginForm = () => {
 
   const onSubmit = async (data) => {
     try {
-      console.log(data);
       const res = await fetch(`${REACT_APP_URL}/login`, {
         method: 'POST',
         headers: {

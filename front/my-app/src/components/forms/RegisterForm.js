@@ -114,10 +114,7 @@ const RegisterForm = () => {
       <fieldset>
         <label>
           repeat password
-          <ErrorMessage
-            className="error-message"
-            error={errors.repeatPassword}
-          />
+          <ErrorMessage className="error-message" error={errors.repeatPassword} />
         </label>
         <input
           name="repeatPassword"

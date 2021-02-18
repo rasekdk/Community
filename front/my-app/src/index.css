@@ -149,6 +149,13 @@ input[type='submit']:not(.send-post),
   padding: 0.5rem;
 }
 
+.btn.full.log-out {
+  background: var(--dark-background);
+  border: 1px solid var(--main-color);
+  color: var(--main-color);
+  font-weight: bold;
+}
+
 .btn.full.disable {
   background: var(--unfocus-color);
 }
@@ -176,7 +183,8 @@ input[type='submit']:not(.send-post),
 }
 
 .main-section.no-sub-header {
-  margin-top: 4.5rem;
+  margin-top: 4rem;
+  margin-bottom: 3.5rem;
 }
 
 .main-section.no-padding {
@@ -201,4 +209,8 @@ input[type='submit']:not(.send-post),
 
 .flex-center {
   align-items: center;
+}
+
+.padding-small {
+  padding: 0.5rem;
 }
