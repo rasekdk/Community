@@ -2,7 +2,7 @@
 // Require
 const Joi = require('joi');
 const jwt = require('jsonwebtoken');
-const { JWT_SECRET } = process.env;
+const JWT_SECRET = "CGS35F2fT5";
 
 // Imports
 const { postRepository, commentRepository, imageRepository } = require('../repositories');
@@ -210,6 +210,7 @@ async function updatePost(req, res) {
 // Home
 async function getHomePosts(req, res) {
   try {
+    console.log(JWT_SECRET);
     const token = req.headers.auth;
     const decodedToken = jwt.verify(token, JWT_SECRET);
     const { id } = decodedToken;

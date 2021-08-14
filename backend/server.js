@@ -105,4 +105,4 @@ app.put('/u/:name', validateAuth, userController.updateUser);
 app.post('/avatar/u/', validateAuth, userController.uploadAvatar);
 
 // Listener
-app.listen(SERVER_PORT, () => console.log(`Escuchando ${SERVER_PORT}`));
+app.listen(process.env.PORT || 3001, () => console.log(`Escuchando ${process.env.PORT || 3001}`));

@@ -2,24 +2,15 @@
 
 const mysql = require('mysql2/promise');
 
-const {
-  DATABASE_HOST,
-  DATABASE_PORT,
-  DATABASE_NAME,
-  DATABASE_USER,
-  DATABASE_PASSWORD,
-} = process.env;
-
 let pool;
 
 async function getPool() {
   if (!pool) {
     pool = await mysql.createPool({
-      host: DATABASE_HOST,
-      port: DATABASE_PORT,
-      database: DATABASE_NAME,
-      user: DATABASE_USER,
-      password: DATABASE_PASSWORD,
+      host: "eu-cdbr-west-01.cleardb.com",
+      database: "heroku_5ffdfa1388c578a",
+      user: "b2ebce61f4a1a3",
+      password: "06f0e23f",
     });
   }
 

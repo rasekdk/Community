@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 const Joi = require('joi');
 const jwt = require('jsonwebtoken');
 const { join } = require('path');
-const { JWT_SECRET } = process.env;
+const JWT_SECRET = "CGS35F2fT5";
 
 // Repositories
 const { userRepository, updateRepository, imageRepository } = require('../repositories');
@@ -53,7 +53,7 @@ async function register(req, res) {
       name: user.userName,
       role: user.userRole,
     };
-    const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {
+    const token = jwt.sign(tokenPayload, JWT_SECRET, {
       expiresIn: '30d',
     });
 
@@ -115,7 +115,7 @@ async function login(req, res) {
       name: user.userName,
       role: user.userRole,
     };
-    const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {
+    const token = jwt.sign(tokenPayload, JWT_SECRET, {
       expiresIn: '30d',
     });
 

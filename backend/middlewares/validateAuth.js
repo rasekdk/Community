@@ -1,7 +1,7 @@
 'use strict';
 
 const jwt = require('jsonwebtoken');
-const { JWT_SECRET } = process.env;
+const JWT_SECRET = "CGS35F2fT5";
 
 function validateAuth(req, res, next) {
   try {
@@ -38,6 +38,7 @@ function validateAdmin(req, res, next) {
     const token = req.headers.auth;
     const decodedToken = jwt.verify(token, JWT_SECRET);
     const { id, name, role } = decodedToken;
+
 
     req.auth = { id, name, role };
 

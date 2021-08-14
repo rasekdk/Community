@@ -3,7 +3,7 @@
 // Require
 const Joi = require('joi');
 const jwt = require('jsonwebtoken');
-const { JWT_SECRET } = process.env;
+const JWT_SECRET  = "CGS35F2fT5";
 
 // Imports
 const {
